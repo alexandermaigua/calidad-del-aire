@@ -336,7 +336,7 @@ const DashboardPage: React.FC = () => {
   return (
     <>
       <header className="p-6">
-        <h2 className="text-2xl font-bold text-slate-800">Monitoring Dashboard</h2>
+        <h2 className="text-2xl font-bold text-slate-800">Panel de Monitoreo</h2>
       </header>
       <main className="px-6 pb-6">
         <div className="grid grid-cols-12 gap-4">
