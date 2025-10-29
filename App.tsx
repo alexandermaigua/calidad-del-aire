@@ -366,7 +366,7 @@ const DashboardPage: React.FC = () => {
             </ul>
           </div>
 
-          <Gauge value={latestReadings.co2} max={2000} label="Calidad del aire" unit="ppm" />
+          <Gauge value={latestReadings.co2} max={2000} label="NH3 y CO2" unit="ppm" />
           <Gauge value={latestReadings.o3} max={500} label="Ozono (O₃)" unit="ppb" />
           <Gauge value={latestReadings.co} max={150} label="Monóxido (CO)" unit="ppm" />
           <Gauge value={latestReadings.pm25} max={100} label="PM₂.₅" unit="µg/m³" />
