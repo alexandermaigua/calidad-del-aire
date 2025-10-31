@@ -366,7 +366,7 @@ const DashboardPage: React.FC = () => {
             </ul>
           </div>
 
-          <Gauge value={latestReadings.co2} max={2000} label="NH3 y CO2" unit="ppm" />
+          <Gauge value={latestReadings.co2} max={2000} label="Gas Licuado de Petróleo(GLP)" unit="ppm" />
           <Gauge value={latestReadings.o3} max={500} label="Ozono (O₃)" unit="ppb" />
           <Gauge value={latestReadings.co} max={150} label="Monóxido (CO)" unit="ppm" />
           <Gauge value={latestReadings.pm25} max={100} label="PM₂.₅" unit="µg/m³" />
@@ -533,7 +533,7 @@ const VARIABLE_OPTIONS = [
   { key: 'co', path: 'gases.co_ppm', label: 'Monóxido (CO)', unit: 'ppm' },
   { key: 'o3', path: 'gases.o3_ppm', label: 'Ozono (O₃)', unit: 'ppb' },
   { key: 'pm25', path: 'particulates.pm25_mgm3', label: 'PM₂.₅', unit: 'µg/m³' },
-  { key: 'co2', path: 'gases.air_quality_ppm', label: 'Calidad del aire (NH3/CO2)', unit: 'ppm' },
+  { key: 'co2', path: 'gases.air_quality_ppm', label: 'Gas Licuado de Petróleo(GLP)', unit: 'ppm' },,
   { key: 'temperature', path: 'environment.temperature', label: 'Temperatura', unit: '°C' },
   { key: 'humidity', path: 'environment.humidity', label: 'Humedad', unit: '%' },
   { key: 'pressure', path: 'environment.pressure', label: 'Presión', unit: 'hPa' },
