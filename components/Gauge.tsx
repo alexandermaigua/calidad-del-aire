@@ -47,7 +47,7 @@ export const Gauge: React.FC<GaugeProps> = ({ value, max, label, unit }) => {
           strokeDashoffset={offset} 
           d="M10,60 A50,50 0 1 1 110,60" 
         />
-        <circle className={`fill-current ${color.replace('stroke-', 'text-')} transition-all duration-700 ease-out`} cx={x.toFixed(2)} cy={y.toFixed(2)} r="4"/>
+
       </svg>
       <div className="mt-1.5 text-center font-bold text-lg text-slate-800">
         <span>{isNaN(value) ? '--' : value.toFixed(2)}</span>
