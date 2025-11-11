@@ -335,20 +335,20 @@ const DashboardPage: React.FC = () => {
 
   return (
     <>
-      <header className="p-6">
+      <header className="p-6 hidden md:block">
         <h2 className="text-2xl font-bold text-slate-800">Panel de Monitoreo</h2>
       </header>
       <main className="px-6 pb-6">
-        <div className="grid grid-cols-12 gap-4">
-          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 flex flex-col justify-between col-span-12 md:col-span-6 lg:col-span-4 xl:col-span-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 flex flex-col justify-between col-span-1">
             <div>
                 <h3 className="font-bold text-slate-800">Índice AQI (Calculado)</h3>
-                <div className="text-6xl font-extrabold bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text">{latestReadings.aqi}</div>
+                <div className="text-5xl font-extrabold bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text">{latestReadings.aqi}</div>
             </div>
             <div className={`text-sm font-bold px-3 py-1 rounded-full self-start ${aqiInfo.className}`}>{aqiInfo.text}</div>
           </div>
 
-          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12 md:col-span-6 lg:col-span-8 xl:col-span-3">
+          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-1">
             <div className="flex items-center gap-4">
                 <div className="text-4xl">⛅</div>
                 <div className="text-4xl font-bold text-slate-800">{weather.tempC.toFixed(1)}°C</div>
@@ -371,7 +371,7 @@ const DashboardPage: React.FC = () => {
           <Gauge value={latestReadings.co} max={150} label="Monóxido (CO)" unit="ppm" />
           <Gauge value={latestReadings.pm25} max={100} label="PM₂.₅" unit="µg/m³" />
 
-          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12">
+          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-1 md:col-span-2 lg:col-span-4">
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-8 gap-y-4">
               <div>
                 <div className="flex justify-between items-baseline mb-2">
@@ -445,8 +445,8 @@ const AlertsPage = () => {
 
     return (
         <>
-            <header className="p-6 flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-slate-800">Registro de Alertas</h2>
+            <header className="p-6 flex flex-col md:flex-row justify-between items-start md:items-center">
+                <h2 className="text-2xl font-bold text-slate-800 mb-4 md:mb-0">Registro de Alertas</h2>
                 <div className="flex gap-2">
                     <button onClick={exportToCsv} className="px-4 py-2 bg-white border border-slate-300 rounded-lg font-semibold text-sm text-slate-700 hover:bg-slate-50 transition">Export CSV</button>
                     <button onClick={clearAlerts} className="px-4 py-2 bg-red-500 text-white rounded-lg font-semibold text-sm hover:bg-red-600 transition">Clear Log</button>
@@ -493,12 +493,12 @@ const AlertsPage = () => {
 
 // --- SENSORS PAGE ---
 const SensorCard: React.FC<{ name: string, description: string, image: string }> = ({ name, description, image }) => (
-    <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12 flex items-center gap-6">
+    <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12 flex flex-col md:flex-row items-center gap-6">
         <div className="w-32 h-32 flex-shrink-0">
             <img src={image} alt={`Imagen del sensor ${name}`} className="w-full h-full object-cover rounded-lg border border-slate-200" />
         </div>
         <div>
-            <h3 className="text-xl font-bold text-slate-800 mb-1">{name}</h3>
+            <h3 className="text-xl font-bold text-slate-800 mb-1 text-center md:text-left">{name}</h3>
             <p className="text-slate-600 text-sm">{description}</p>
         </div>
     </div>
@@ -680,8 +680,8 @@ const HistoryPage = () => {
             </header>
             <main className="px-6 pb-6">
                 <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 mb-4">
-                    <div className="flex flex-wrap items-end gap-4">
-                        <div className="flex-1 min-w-[200px]">
+                    <div className="flex flex-col md:flex-row flex-wrap items-end gap-4">
+                        <div className="flex-1 w-full md:w-auto min-w-[200px]">
                             <label htmlFor="variable-select" className="block text-sm font-medium text-slate-700 mb-1">Variable</label>
                             <select 
                                 id="variable-select" 
@@ -694,7 +694,7 @@ const HistoryPage = () => {
                                 ))}
                             </select>
                         </div>
-                        <div className="flex-1 min-w-[150px]">
+                        <div className="flex-1 w-full md:w-auto min-w-[150px]">
                             <label htmlFor="date-picker" className="block text-sm font-medium text-slate-700 mb-1">Fecha</label>
                             <input 
                                 type="date" 
@@ -705,7 +705,7 @@ const HistoryPage = () => {
                                 style={{ colorScheme: 'dark' }}
                             />
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 w-full md:w-auto">
                             <button
                                 onClick={handleGenerateChart}
                                 disabled={loading}
@@ -741,26 +741,25 @@ const HistoryPage = () => {
 
 // --- LAYOUT & APP ---
 // FIX: Updated Sidebar to be compatible with react-router-dom v6/v7, using a function for className and the `end` prop for the root NavLink.
-const Sidebar: React.FC = () => {
+const Sidebar: React.FC<{ isOpen: boolean; toggle: () => void }> = ({ isOpen, toggle }) => {
   const navLinkClass = "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white";
   const activeNavLinkClass = "bg-brand-dark text-white";
   
   return (
-    <aside className="fixed top-0 left-0 bottom-0 w-64 bg-slate-800 text-white p-4 flex flex-col z-10">
-      <div className="flex items-center gap-3 p-2 mb-4">
+    <aside className={`fixed top-0 left-0 bottom-0 bg-slate-800 text-white p-4 flex flex-col z-20 transition-all duration-300 ${isOpen ? 'w-64' : 'w-0 p-0 overflow-hidden'}`}>
+      <div className={`flex items-center gap-3 p-2 mb-4 transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
         <div className="w-10 h-10 rounded-xl grid place-items-center bg-gradient-to-br from-brand to-cyan-400 text-white font-bold text-lg">
           PP
         </div>
         <span className="font-bold text-lg">Aire Patricia Pilar</span>
       </div>
-      <nav className="flex flex-col gap-1">
-        {/* FIX: Replaced ReactRouterDOM.NavLink with NavLink from named import to fix component not found errors. */}
+      <nav className={`flex flex-col gap-1 transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
         <ReactRouterDOM.NavLink to="/" end className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><DashboardIcon /><span>Monitoreo</span></ReactRouterDOM.NavLink>
         <ReactRouterDOM.NavLink to="/sensors" className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><SensorIcon /><span>Sensores</span></ReactRouterDOM.NavLink>
         <ReactRouterDOM.NavLink to="/alerts" className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><AlertIcon /><span>Alertas</span></ReactRouterDOM.NavLink>
         <ReactRouterDOM.NavLink to="/history" className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><HistoryIcon /><span>Histórico</span></ReactRouterDOM.NavLink>
       </nav>
-      <div className="mt-auto p-3 flex items-center gap-3 bg-slate-900/50 rounded-lg">
+      <div className={`mt-auto p-3 flex items-center gap-3 bg-slate-900/50 rounded-lg transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
           <img src="https://picsum.photos/seed/user/40/40" alt="User" className="w-10 h-10 rounded-full" />
           <div>
               <div className="font-semibold text-white">Alexander Maigua</div>
@@ -771,16 +770,44 @@ const Sidebar: React.FC = () => {
   );
 };
 
-// FIX: The Layout component is compatible with v6, passing routes as children.
-// FIX: Explicitly type `children` prop for compatibility with React 18 types for functional components.
-const Layout: React.FC<PropsWithChildren> = ({ children }) => (
-  <div className="flex">
-    <Sidebar />
-    <div className="ml-64 w-[calc(100%-256px)] min-h-screen bg-slate-100">
-      {children}
+const Layout: React.FC<PropsWithChildren> = ({ children }) => {
+  const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!isSidebarOpen);
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return (
+    <div className="flex">
+      <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar} />
+      <div className={`min-h-screen bg-slate-100 transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : 'ml-0 w-full'}`}>
+        <header className="md:hidden p-4 bg-slate-800 text-white flex justify-between items-center fixed top-0 left-0 w-full z-10">
+          <button onClick={toggleSidebar}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+          </button>
+          <h1 className="text-lg font-bold">Monitoring Dashboard</h1>
+        </header>
+        <div className="md:pt-0 pt-16">
+          {children}
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // FIX: Refactored App to use react-router-dom v6/v7 components like Routes and the `element` prop on Route.
 function App() {
