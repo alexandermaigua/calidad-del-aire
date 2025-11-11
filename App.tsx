@@ -15,6 +15,7 @@ import {
 import { db } from './services/firebase';
 import { SensorData, WeatherData, AlertRecord, AqiLevel, HistoricalData, DeviceData } from './types';
 import { DashboardIcon, SensorIcon, AlertIcon, HistoryIcon } from './components/Icons';
+import { NotificationBanner } from './components/NotificationBanner';
 import { Gauge } from './components/Gauge';
 import { AqiChart } from './components/AqiChart';
 
@@ -295,6 +296,13 @@ const DashboardPage: React.FC = () => {
       ...alertData,
       ts: new Date().toISOString(),
     });
+
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const notification = new Notification('Alerta de Calidad del Aire', {
+        body: alertData.message,
+        icon: '/imagenes/logo.png',
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -784,8 +792,30 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => (
 
 // FIX: Refactored App to use react-router-dom v6/v7 components like Routes and the `element` prop on Route.
 function App() {
+  const [showNotificationBanner, setShowNotificationBanner] = useState(false);
+
+  useEffect(() => {
+    if ('Notification' in window) {
+      if (Notification.permission === 'default') {
+        setShowNotificationBanner(true);
+      }
+    }
+  }, []);
+
+  const handleAllowNotifications = () => {
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') {
+        console.log('Notification permission granted.');
+      }
+      setShowNotificationBanner(false);
+    });
+  };
+
+  const handleBlockNotifications = () => {
+    setShowNotificationBanner(false);
+  };
+
   return (
-    // FIX: Replaced ReactRouterDOM.* components with direct named imports to fix component not found errors.
     <ReactRouterDOM.HashRouter>
       <Layout>
         <ReactRouterDOM.Routes>
@@ -795,6 +825,12 @@ function App() {
           <ReactRouterDOM.Route path="/history" element={<HistoryPage />} />
         </ReactRouterDOM.Routes>
       </Layout>
+      {showNotificationBanner && (
+        <NotificationBanner
+          onAllow={handleAllowNotifications}
+          onBlock={handleBlockNotifications}
+        />
+      )}
     </ReactRouterDOM.HashRouter>
   );
 }
