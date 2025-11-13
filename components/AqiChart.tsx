@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AreaChart, Area, Tooltip, ResponsiveContainer, YAxis, XAxis, CartesianGrid, ReferenceArea } from 'recharts';
 import { HistoricalData } from '../types';

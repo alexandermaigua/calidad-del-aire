@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 
 interface GaugeProps {
@@ -35,7 +34,7 @@ export const Gauge: React.FC<GaugeProps> = ({ value, max, label, unit }) => {
   }
 
   return (
-    <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 flex flex-col col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3 xl:col-span-2">
+    <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 flex flex-col col-span-6 md:col-span-3">
       <h4 className="m-0 mb-2 text-sm font-semibold text-slate-700">{label}</h4>
       <svg className="w-full h-auto" viewBox="0 0 120 70">
         <path className="fill-none stroke-slate-200" strokeWidth="10" strokeLinecap="round" d="M10,60 A50,50 0 1 1 110,60" />
@@ -47,7 +46,7 @@ export const Gauge: React.FC<GaugeProps> = ({ value, max, label, unit }) => {
           strokeDashoffset={offset} 
           d="M10,60 A50,50 0 1 1 110,60" 
         />
-
+        <circle className={`fill-current ${color.replace('stroke-', 'text-')} transition-all duration-700 ease-out`} cx={x.toFixed(2)} cy={y.toFixed(2)} r="4"/>
       </svg>
       <div className="mt-1.5 text-center font-bold text-lg text-slate-800">
         <span>{isNaN(value) ? '--' : value.toFixed(2)}</span>

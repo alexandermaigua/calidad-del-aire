@@ -1,9 +1,4 @@
-
-
-
-
-
-import React, { useState, useEffect, useCallback, useRef, createContext, useContext, PropsWithChildren } from 'react';
+import React, { useState, useEffect, useCallback, useRef, PropsWithChildren } from 'react';
 // FIX: Use a namespace import for react-router-dom to resolve module resolution errors. This is more robust against CJS/ESM inconsistencies.
 import * as ReactRouterDOM from 'react-router-dom';
 // FIX: Import firebase to make firebase types available in this file.
@@ -15,33 +10,9 @@ import {
 import { db } from './services/firebase';
 import { SensorData, WeatherData, AlertRecord, AqiLevel, HistoricalData, DeviceData } from './types';
 import { DashboardIcon, SensorIcon, AlertIcon, HistoryIcon, MenuIcon, CloseIcon } from './components/Icons';
-import { NotificationBanner } from './components/NotificationBanner';
 import { Gauge } from './components/Gauge';
 import { AqiChart } from './components/AqiChart';
-
-// --- CONTEXT & HOOKS ---
-const AppContext = createContext<{
-  isSidebarOpen: boolean;
-  setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  isMobile: boolean;
-}>({
-  isSidebarOpen: false,
-  setSidebarOpen: () => {},
-  isMobile: false,
-});
-
-const useApp = () => useContext(AppContext);
-
-const useMediaQuery = (query: string) => {
-  const [matches, setMatches] = useState(window.matchMedia(query).matches);
-  useEffect(() => {
-    const media = window.matchMedia(query);
-    const listener = () => setMatches(media.matches);
-    media.addEventListener('change', listener);
-    return () => media.removeEventListener('change', listener);
-  }, [query]);
-  return matches;
-};
+import { NotificationBanner } from './components/NotificationBanner';
 
 // --- CONSTANTS & HELPERS ---
 const POLLUTANT_THRESH = { pm25: { warn: 35.5, bad: 55.5 }, o3: { warn: 125, bad: 200 } };
@@ -212,7 +183,7 @@ const useRealtimeData = () => {
             co2: data.gases?.air_quality_ppm ?? 0,
             o3: o3_ppb, // The gauge displays ppb
             co: data.gases?.co_ppm ?? 0,
-            glp: data.gases?.lpg_ppm ?? 0,
+            glp: data.gases?.lpg ?? 0,
             naturalGas: data.gases?.natural_gas ?? 0,
             pm1: data.particulates?.pm1_ugm3 ?? 0,
             pm25: pm25,
@@ -320,13 +291,6 @@ const DashboardPage: React.FC = () => {
       ...alertData,
       ts: new Date().toISOString(),
     });
-
-    if ('Notification' in window && Notification.permission === 'granted') {
-      const notification = new Notification('Alerta de Calidad del Aire', {
-        body: alertData.message,
-        icon: '/imagenes/logo.png',
-      });
-    }
   }, []);
 
   useEffect(() => {
@@ -366,71 +330,64 @@ const DashboardPage: React.FC = () => {
   const aqiDetails = getAqiInfoDetails(latestReadings.aqi);
 
   return (
-    <>
-      <header className="p-6">
-        <h2 className="text-2xl font-bold text-slate-800">Panel de Monitoreo</h2>
-      </header>
-      <main className="px-6 pb-6">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 flex flex-col justify-between md:col-span-6 lg:col-span-4 xl:col-span-3">
-            <div>
-                <h3 className="font-bold text-slate-800">Índice AQI (Calculado)</h3>
-                <div className="text-6xl font-extrabold bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text">{latestReadings.aqi}</div>
-            </div>
-            <div className={`text-sm font-bold px-3 py-1 rounded-full self-start ${aqiInfo.className}`}>{aqiInfo.text}</div>
-          </div>
+    <div className="grid grid-cols-12 gap-4">
+      <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 flex flex-col justify-between col-span-12 lg:col-span-4">
+        <div>
+            <h3 className="font-bold text-slate-800">Índice AQI (Calculado)</h3>
+            <div className="text-6xl font-extrabold bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text">{latestReadings.aqi}</div>
+        </div>
+        <div className={`text-sm font-bold px-3 py-1 rounded-full self-start ${aqiInfo.className}`}>{aqiInfo.text}</div>
+      </div>
 
-          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 md:col-span-6 lg:col-span-8 xl:col-span-3">
-            <div className="flex items-center gap-4">
-                <div className="text-4xl">⛅</div>
+      <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12 lg:col-span-8">
+        <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+            <div className="text-5xl">⛅</div>
+            <div className="flex-grow">
                 <div className="text-4xl font-bold text-slate-800">{weather.tempC.toFixed(1)}°C</div>
             </div>
-            <div className="grid grid-cols-[auto_1fr_auto] gap-2 items-center my-2 text-sm">
-                <div>AQI:</div>
-                <div className="h-2.5 bg-slate-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-green-400 via-yellow-400 to-red-500" style={{ width: `${clamp(weather.aqi, 0, 300) / 3}%`}}></div>
-                </div>
-                <div className="font-bold">{weather.aqi}</div>
+        </div>
+        <div className="grid grid-cols-[auto_1fr_auto] gap-2 items-center my-2 text-sm">
+            <div>AQI:</div>
+            <div className="h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-green-400 via-yellow-400 to-red-500" style={{ width: `${clamp(weather.aqi, 0, 300) / 3}%`}}></div>
             </div>
-            <ul className="text-xs text-slate-600 space-y-1 mt-2">
-                <li>Humedad: <strong className="text-slate-800">{weather.humidity.toFixed(2)}%</strong></li>
-                <li>Presión: <strong className="text-slate-800">{weather.pressure}</strong></li>
-            </ul>
-          </div>
+            <div className="font-bold">{weather.aqi}</div>
+        </div>
+        <ul className="text-xs text-slate-600 space-y-1 mt-2">
+            <li>Humedad: <strong className="text-slate-800">{weather.humidity.toFixed(2)}%</strong></li>
+            <li>Presión: <strong className="text-slate-800">{weather.pressure}</strong></li>
+        </ul>
+      </div>
 
-          <div className="md:col-span-12 grid grid-cols-2 gap-4">
-            <Gauge value={latestReadings.glp} max={2000} label="Gas Licuado de Petróleo (GLP)" unit="ppm" />
-            <Gauge value={latestReadings.o3} max={500} label="Ozono (O₃)" unit="ppb" />
-            <Gauge value={latestReadings.co} max={150} label="Monóxido (CO)" unit="ppm" />
-            <Gauge value={latestReadings.pm25} max={100} label="PM₂.₅" unit="µg/m³" />
-          </div>
+      <Gauge value={latestReadings.co2} max={2000} label="Calidad del aire" unit="ppm" />
+      <Gauge value={latestReadings.o3} max={500} label="Ozono (O₃)" unit="ppb" />
+      <Gauge value={latestReadings.co} max={150} label="Monóxido (CO)" unit="ppm" />
+      <Gauge value={latestReadings.pm25} max={100} label="PM₂.₅" unit="µg/m³" />
 
-          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 md:col-span-12">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-8 gap-y-4">
-              <div>
-                <div className="flex justify-between items-baseline mb-2">
-                    <h3 className="font-bold text-slate-800">Calidad del Aire – AQI (Últimas lecturas)</h3>
-                    <small className="text-slate-500">AQI (0–500)</small>
-                </div>
-                <AqiChart data={history} />
-              </div>
-              <div className="flex flex-col justify-center">
-                 <h3 className="font-bold text-slate-800 mb-2">Conceptos básicos de AQI</h3>
-                 <div className={`p-4 rounded-lg shadow-inner ${aqiDetails.cardClassName}`}>
-                    <div className="flex justify-between items-center mb-2">
-                        <span className="font-bold text-lg">{aqiDetails.concernLevel}</span>
-                        <span className="font-mono text-sm opacity-90">AQI: {aqiDetails.valueRange}</span>
-                    </div>
-                    <p className="text-sm opacity-95">
-                        {aqiDetails.meaning}
-                    </p>
-                 </div>
-              </div>
+      <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-8 gap-y-4">
+          <div>
+            <div className="flex justify-between items-baseline mb-2">
+                <h3 className="font-bold text-slate-800">Calidad del Aire – AQI (Últimas lecturas)</h3>
+                <small className="text-slate-500">AQI (0–500)</small>
             </div>
+            <AqiChart data={history} />
+          </div>
+          <div className="flex flex-col justify-center">
+             <h3 className="font-bold text-slate-800 mb-2">Conceptos básicos de AQI</h3>
+             <div className={`p-4 rounded-lg shadow-inner ${aqiDetails.cardClassName}`}>
+                <div className="flex justify-between items-center mb-2">
+                    <span className="font-bold text-lg">{aqiDetails.concernLevel}</span>
+                    <span className="font-mono text-sm opacity-90">AQI: {aqiDetails.valueRange}</span>
+                </div>
+                <p className="text-sm opacity-95">
+                    {aqiDetails.meaning}
+                </p>
+             </div>
           </div>
         </div>
-      </main>
-    </>
+      </div>
+    </div>
   );
 };
 
@@ -444,9 +401,9 @@ const AlertsPage = () => {
         const csvRows = [
             headers.join(','),
             ...alerts.map(a => [
-                `"${new Date(a.ts).toLocaleString()}"`,
-                `"${a.type}"`,
-                `"${a.level}"`,
+                `"${new Date(a.ts).toLocaleString()}"`, 
+                `"${a.type}"`, 
+                `"${a.level}"`, 
                 a.value,
                 `"${a.message}"`
             ].join(','))
@@ -479,87 +436,100 @@ const AlertsPage = () => {
 
     return (
         <>
-            <header className="p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                <h2 className="text-2xl font-bold text-slate-800 text-center sm:text-left">Registro de Alertas</h2>
-                <div className="flex gap-2 justify-center">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4">
+                <h3 className="text-xl font-bold text-slate-800">Alerts Log</h3>
+                <div className="flex flex-col sm:flex-row gap-2">
                     <button onClick={exportToCsv} className="px-4 py-2 bg-white border border-slate-300 rounded-lg font-semibold text-sm text-slate-700 hover:bg-slate-50 transition">Export CSV</button>
                     <button onClick={clearAlerts} className="px-4 py-2 bg-red-500 text-white rounded-lg font-semibold text-sm hover:bg-red-600 transition">Clear Log</button>
                 </div>
-            </header>
-            <main className="px-6 pb-6">
-                 <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left text-slate-500">
-                            <thead className="text-xs text-slate-700 uppercase bg-slate-50">
-                                <tr>
-                                    <th scope="col" className="px-6 py-3">Date & Time</th>
-                                    <th scope="col" className="px-6 py-3">Type</th>
-                                    <th scope="col" className="px-6 py-3">Level</th>
-                                    <th scope="col" className="px-6 py-3">Value</th>
-                                    <th scope="col" className="px-6 py-3">Message</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr><td colSpan={5} className="text-center p-8">Loading alerts...</td></tr>
-                                ) : alerts.length === 0 ? (
-                                    <tr><td colSpan={5} className="text-center p-8">No alerts recorded yet.</td></tr>
-                                ) : (
-                                    alerts.map(alert => (
-                                        <tr key={alert.id} className="bg-white border-b hover:bg-slate-50">
-                                            <td className="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">{new Date(alert.ts).toLocaleString()}</td>
-                                            <td className="px-6 py-4">{alert.type}</td>
-                                            <td className="px-6 py-4"><span className={`px-2 py-0.5 rounded-full font-semibold border ${pillClasses[alert.cls] || 'bg-slate-100 text-slate-800 border-slate-200'}`}>{alert.level}</span></td>
-                                            <td className="px-6 py-4">{alert.value}</td>
-                                            <td className="px-6 py-4">{alert.message}</td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                 </div>
-            </main>
+            </div>
+            <div className="bg-white border border-slate-200 shadow-lg rounded-2xl">
+              {/* Mobile Card View */}
+              <div className="md:hidden">
+                {loading ? (
+                    <div className="text-center p-8 text-slate-500">Loading alerts...</div>
+                ) : alerts.length === 0 ? (
+                    <div className="text-center p-8 text-slate-500">No alerts recorded yet.</div>
+                ) : (
+                  <div className="divide-y divide-slate-200">
+                    {alerts.map(alert => (
+                      <div key={alert.id} className="p-4">
+                        <div className="flex justify-between items-start gap-2 mb-1">
+                          <span className="font-semibold text-slate-800">{alert.message}</span>
+                          <span className={`flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold border ${pillClasses[alert.cls] || 'bg-slate-100 text-slate-800 border-slate-200'}`}>{alert.level}</span>
+                        </div>
+                        <div className="text-xs text-slate-500 flex justify-between items-center">
+                          <span>{new Date(alert.ts).toLocaleString()}</span>
+                          <span className="font-mono">{alert.type}: <strong>{alert.value}</strong></span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="overflow-x-auto hidden md:block">
+                  <table className="w-full text-sm text-left text-slate-500">
+                      <thead className="text-xs text-slate-700 uppercase bg-slate-50">
+                          <tr>
+                              <th scope="col" className="px-6 py-3">Date & Time</th>
+                              <th scope="col" className="px-6 py-3">Type</th>
+                              <th scope="col" className="px-6 py-3">Level</th>
+                              <th scope="col" className="px-6 py-3">Value</th>
+                              <th scope="col" className="px-6 py-3">Message</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {loading ? (
+                              <tr><td colSpan={5} className="text-center p-8">Loading alerts...</td></tr>
+                          ) : alerts.length === 0 ? (
+                              <tr><td colSpan={5} className="text-center p-8">No alerts recorded yet.</td></tr>
+                          ) : (
+                              alerts.map(alert => (
+                                  <tr key={alert.id} className="bg-white border-b hover:bg-slate-50">
+                                      <td className="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">{new Date(alert.ts).toLocaleString()}</td>
+                                      <td className="px-6 py-4">{alert.type}</td>
+                                      <td className="px-6 py-4"><span className={`px-2 py-0.5 rounded-full font-semibold border ${pillClasses[alert.cls] || 'bg-slate-100 text-slate-800 border-slate-200'}`}>{alert.level}</span></td>
+                                      <td className="px-6 py-4">{alert.value}</td>
+                                      <td className="px-6 py-4">{alert.message}</td>
+                                  </tr>
+                              ))
+                          )}
+                      </tbody>
+                  </table>
+              </div>
+            </div>
         </>
     );
 };
 
 
 // --- SENSORS PAGE ---
-const SensorCard: React.FC<{ name: string, description: string, image: string }> = ({ name, description, image }) => (
-    <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12 flex flex-col sm:flex-row items-center gap-6">
-        <div className="w-32 h-32 flex-shrink-0">
-            <img src={image} alt={`Imagen del sensor ${name}`} className="w-full h-full object-cover rounded-lg border border-slate-200" />
-        </div>
+const SensorCard: React.FC<{ name: string, description: string}> = ({ name, description}) => (
+    <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12">
         <div>
-            <h3 className="text-xl font-bold text-slate-800 mb-1 text-center sm:text-left">{name}</h3>
-            <p className="text-slate-600 text-sm text-center sm:text-left">{description}</p>
+            <h3 className="text-xl font-bold text-slate-800 mb-1">{name}</h3>
+            <p className="text-slate-600">{description}</p>
         </div>
     </div>
 );
 
 const SENSORS_LIST = [
-    { name: 'MQ-7 (Sensor de Monóxido de Carbono)', description: 'El MQ-7 es un sensor semiconductor diseñado para detectar monóxido de carbono (CO). Utiliza óxido de estaño (SnO2) en un tubo calentado que modifica su resistencia eléctrica en presencia de CO, haciéndolo ideal para detección rápida y económica de este gas peligroso, inodoro y tóxico. El sensor tiene una salida analógica proporcional a la concentración de CO y una salida digital mediante comparador para niveles umbral. Es ampliamente usado en aplicaciones domésticas y industriales para seguridad ambiental.', image: '/imagenes/MQ7.jpg' },
-    { name: 'MQ-131 (Sensor de Ozono O3)', description: 'El MQ-131 detecta ozono (O3) en rangos típicos de 10 a 1000 ppm. Es un sensor basado en óxido de estaño que modula su resistencia conforme varían concentraciones de ozono, con alta sensibilidad en entornos industriales y urbanos. Su uso incluye monitoreo ambiental para calidad del aire, ayudando a detectar contaminantes oxidantes peligrosos.', image: '/imagenes/MQ131.jpg' },
-    { name: 'MQ-5 (Sensor de Glp)', description: 'El MQ-5 es un sensor semiconductor diseñado para la detección de gases inflamables como gas natural, gas licuado de petróleo (GLP), hidrógeno y vapores de alcohol. Su funcionamiento se basa en un material sensible cuya resistencia eléctrica varía ante la presencia de estos gases, generando una señal analógica proporcional a su concentración. Es ampliamente utilizado en sistemas de monitoreo y seguridad para la prevención de fugas y la detección temprana de gases combustibles en el ambiente.', image: '/imagenes/MQ135.jpg' },
-    { name: 'BME280 (Sensor Ambiental Digital)', description: 'El BME280 es un sensor ambiental digital que mide humedad relativa, presión barométrica y temperatura con alta precisión. Basado en tecnología MEMS y con interfaces I2C y SPI, es compacto y consume poca energía, ideal para dispositivos portátiles, domótica, estaciones climáticas y sistemas IoT. Ofrece modos de operación configurables para balancear precisión y consumo.', image: '/imagenes/BME280.jpg' },
-    { name: 'DSM501A (Sensor de Polvo/Partículas)', description: 'DSM501A es un sensor óptico para detectar partículas de polvo y calidad del aire. Utiliza un LED infrarrojo y un fotodiodo para medir la concentración de polvo en suspensión mediante dispersión de luz. Proporciona una salida digital proporcional a la densidad de partículas, útil en sistemas de monitoreo de contaminación ambiental y sistemas HVAC.', image: '/imagenes/DSM501A.jpg' },
+    { name: 'MQ-7 (Sensor de Monóxido de Carbono)', description: 'El MQ-7 es un sensor semiconductor diseñado para detectar monóxido de carbono (CO). Utiliza óxido de estaño (SnO2) en un tubo calentado que modifica su resistencia eléctrica en presencia de CO, haciéndolo ideal para detección rápida y económica de este gas peligroso, inodoro y tóxico. El sensor tiene una salida analógica proporcional a la concentración de CO y una salida digital mediante comparador para niveles umbral. Es ampliamente usado en aplicaciones domésticas y industriales para seguridad ambiental.' },
+    { name: 'MQ-131 (Sensor de Ozono O3)', description: 'El MQ-131 detecta ozono (O3) en rangos típicos de 10 a 1000 ppm. Es un sensor basado en óxido de estaño que modula su resistencia conforme varían concentraciones de ozono, con alta sensibilidad en entornos industriales y urbanos. Su uso incluye monitoreo ambiental para calidad del aire, ayudando a detectar contaminantes oxidantes peligrosos.' },
+    { name: 'MQ-135 (Sensor de Calidad del Aire)', description: 'El MQ-135 es un sensor polivalente para detectar gases nocivos y contaminantes en aire como NH3, NOx, alcohol, benceno, y humo. También se usa para medir calidad del aire en interiores y exteriores. Opera mediante variaciones en resistencia de un semiconductor de óxido de estaño según la concentración de gases. Utilizado en sistemas de monitoreo ambiental para advertencias tempranas.' },
+    { name: 'BME280 (Sensor Ambiental Digital)', description: 'El BME280 es un sensor ambiental digital que mide humedad relativa, presión barométrica y temperatura con alta precisión. Basado en tecnología MEMS y con interfaces I2C y SPI, es compacto y consume poca energía, ideal para dispositivos portátiles, domótica, estaciones climáticas y sistemas IoT. Ofrece modos de operación configurables para balancear precisión y consumo.' },
+    { name: 'DSM501A (Sensor de Polvo/Partículas)', description: 'DSM501A es un sensor óptico para detectar partículas de polvo y calidad del aire. Utiliza un LED infrarrojo y un fotodiodo para medir la concentración de polvo en suspensión mediante dispersión de luz. Proporciona una salida digital proporcional a la densidad de partículas, útil en sistemas de monitoreo de contaminación ambiental y sistemas HVAC.' },
 ];
 
 const SensorsPage = () => (
-    <>
-        <header className="p-6">
-            <h2 className="text-2xl font-bold text-slate-800">Informacion de Sensores</h2>
-        </header>
-        <main className="px-6 pb-6">
-            <div className="grid grid-cols-1 gap-4">
-                <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12">
-                    <p className="text-slate-600">El sistema de monitoreo de calidad del aire en la parroquia Patricia Pilar integra sensores de gases, material particulado y variables ambientales. La combinación de estos dispositivos permite generar indicadores como el AQI y brindar soporte a decisiones de salud y ambiente.</p>
-                </div>
-                {SENSORS_LIST.map(sensor => <SensorCard key={sensor.name} name={sensor.name} description={sensor.description} image={sensor.image} />)}
-            </div>
-        </main>
-    </>
+    <div className="grid grid-cols-12 gap-4">
+        <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12">
+            <p className="text-slate-600">El sistema de monitoreo de calidad del aire en la parroquia Patricia Pilar integra sensores de gases, material particulado y variables ambientales. La combinación de estos dispositivos permite generar indicadores como el AQI y brindar soporte a decisiones de salud y ambiente.</p>
+        </div>
+        {SENSORS_LIST.map(sensor => <SensorCard key={sensor.name} name={sensor.name} description={sensor.description} />)}
+    </div>
 );
 
 // --- HISTORY PAGE ---
@@ -567,7 +537,7 @@ const VARIABLE_OPTIONS = [
   { key: 'co', path: 'gases.co_ppm', label: 'Monóxido (CO)', unit: 'ppm' },
   { key: 'o3', path: 'gases.o3_ppm', label: 'Ozono (O₃)', unit: 'ppb' },
   { key: 'pm25', path: 'particulates.pm25_mgm3', label: 'PM₂.₅', unit: 'µg/m³' },
-  { key: 'glp', path: 'gases.lpg_ppm', label: 'Gas Licuado de Petróleo (GLP)', unit: 'ppm' },
+  { key: 'co2', path: 'gases.air_quality_ppm', label: 'Calidad del aire (NH3/CO2)', unit: 'ppm' },
   { key: 'temperature', path: 'environment.temperature', label: 'Temperatura', unit: '°C' },
   { key: 'humidity', path: 'environment.humidity', label: 'Humedad', unit: '%' },
   { key: 'pressure', path: 'environment.pressure', label: 'Presión', unit: 'hPa' },
@@ -691,7 +661,7 @@ const HistoryPage = () => {
         const csvRows = [
             headers.join(','),
             ...chartData.map(d => [
-                `"${new Date(d.fullTimestamp).toLocaleString()}"`,
+                `"${new Date(d.fullTimestamp).toLocaleString()}"`, 
                 d.value
             ].join(','))
         ];
@@ -709,158 +679,159 @@ const HistoryPage = () => {
 
     return (
          <>
-            <header className="p-6">
-                <h2 className="text-2xl font-bold text-slate-800">Histórico de Datos</h2>
-            </header>
-            <main className="px-6 pb-6">
-                <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 mb-4">
-                    <div className="flex flex-wrap items-end gap-4">
-                        <div className="flex-1 min-w-[200px]">
-                            <label htmlFor="variable-select" className="block text-sm font-medium text-slate-700 mb-1">Variable</label>
-                            <select 
-                                id="variable-select" 
-                                value={selectedVariable}
-                                onChange={(e) => setSelectedVariable(e.target.value)}
-                                className="w-full px-3 py-2 bg-slate-800 text-white border border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-brand"
-                            >
-                                {VARIABLE_OPTIONS.map(option => (
-                                    <option key={option.key} value={option.key} className="bg-slate-800 text-white">{option.label}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="flex-1 min-w-[150px]">
-                            <label htmlFor="date-picker" className="block text-sm font-medium text-slate-700 mb-1">Fecha</label>
-                            <input 
-                                type="date" 
-                                id="date-picker"
-                                value={selectedDate}
-                                onChange={(e) => setSelectedDate(e.target.value)}
-                                className="w-full px-3 py-2 bg-slate-800 text-white border border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-brand"
-                                style={{ colorScheme: 'dark' }}
-                            />
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={handleGenerateChart}
-                                disabled={loading}
-                                className="w-full sm:w-auto px-6 py-2 bg-brand text-white font-semibold rounded-md shadow-sm hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand disabled:bg-slate-400 disabled:cursor-not-allowed"
-                            >
-                                {loading ? 'Generando...' : 'Generar Gráfico'}
-                            </button>
-                            <button
-                                onClick={exportHistoryToCsv}
-                                disabled={loading || chartData.length === 0}
-                                className="px-4 py-2 bg-white border border-slate-300 rounded-md font-semibold text-sm text-slate-700 hover:bg-slate-50 transition disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed"
-                            >
-                                Exportar CSV
-                            </button>
-                        </div>
+            <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 mb-4">
+                <div className="flex flex-col sm:flex-row flex-wrap items-end gap-4">
+                    <div className="flex-grow w-full sm:w-auto min-w-[200px]">
+                        <label htmlFor="variable-select" className="block text-sm font-medium text-slate-700 mb-1">Variable</label>
+                        <select 
+                            id="variable-select" 
+                            value={selectedVariable}
+                            onChange={(e) => setSelectedVariable(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-800 text-white border border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-brand"
+                        >
+                            {VARIABLE_OPTIONS.map(option => (
+                                <option key={option.key} value={option.key} className="bg-slate-800 text-white">{option.label}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="flex-grow w-full sm:w-auto min-w-[150px]">
+                        <label htmlFor="date-picker" className="block text-sm font-medium text-slate-700 mb-1">Fecha</label>
+                        <input 
+                            type="date" 
+                            id="date-picker"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-800 text-white border border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-brand"
+                            style={{ colorScheme: 'dark' }}
+                        />
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+                        <button
+                            onClick={handleGenerateChart}
+                            disabled={loading}
+                            className="px-6 py-2 bg-brand text-white font-semibold rounded-md shadow-sm hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand disabled:bg-slate-400 disabled:cursor-not-allowed"
+                        >
+                            {loading ? 'Generando...' : 'Generar Gráfico'}
+                        </button>
+                        <button
+                            onClick={exportHistoryToCsv}
+                            disabled={loading || chartData.length === 0}
+                            className="px-4 py-2 bg-white border border-slate-300 rounded-md font-semibold text-sm text-slate-700 hover:bg-slate-50 transition disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed"
+                        >
+                            Exportar CSV
+                        </button>
                     </div>
                 </div>
+            </div>
 
-                <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 min-h-[468px] flex items-center justify-center">
-                    {loading ? (
-                        <p className="text-slate-500">Cargando datos del gráfico...</p>
-                    ) : chartData.length > 0 ? (
-                        <HistoryChart data={chartData} variable={{label: currentVariableInfo.label, unit: currentVariableInfo.unit}} />
-                    ) : (
-                        <p className="text-slate-500">{message}</p>
-                    )}
-                </div>
-            </main>
+            <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 min-h-[468px] flex items-center justify-center">
+                {loading ? (
+                    <p className="text-slate-500">Cargando datos del gráfico...</p>
+                ) : chartData.length > 0 ? (
+                    <HistoryChart data={chartData} variable={{label: currentVariableInfo.label, unit: currentVariableInfo.unit}} />
+                ) : (
+                    <p className="text-slate-500">{message}</p>
+                )}
+            </div>
         </>
     )
 };
 
 
 // --- LAYOUT & APP ---
-// FIX: Updated Sidebar to be compatible with react-router-dom v6/v7, using a function for className and the `end` prop for the root NavLink.
-const Sidebar: React.FC = () => {
-  const { isMobile, setSidebarOpen } = useApp();
+interface SidebarProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+}
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const navLinkClass = "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white";
   const activeNavLinkClass = "bg-brand-dark text-white";
 
-  const handleLinkClick = () => {
-    if (isMobile) {
-      setSidebarOpen(false);
-    }
-  };
+  const closeSidebar = () => setIsOpen(false);
   
   return (
-    <aside className="fixed top-0 left-0 bottom-0 w-64 bg-slate-800 text-white p-4 flex flex-col z-30 transition-transform duration-300 ease-in-out">
-      <div className="flex items-center justify-between p-2 mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl grid place-items-center bg-gradient-to-br from-brand to-cyan-400 text-white font-bold text-lg">
-            PP
+    <>
+      <div 
+        className={`fixed inset-0 bg-black/50 z-10 lg:hidden transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        onClick={closeSidebar}
+        aria-hidden="true"
+      ></div>
+      <aside className={`fixed top-0 left-0 bottom-0 w-64 bg-slate-800 text-white p-4 flex-flex-col z-20 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex items-center justify-between p-2 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl grid place-items-center bg-gradient-to-br from-brand to-cyan-400 text-white font-bold text-lg">
+              PP
+            </div>
+            <span className="font-bold text-lg">Aire Patricia Pilar</span>
           </div>
-          <span className="font-bold text-lg">Aire Patricia Pilar</span>
-        </div>
-        {isMobile && (
-          <button onClick={() => setSidebarOpen(false)} className="text-slate-400 hover:text-white">
+          <button onClick={closeSidebar} className="lg:hidden p-1 text-slate-400 hover:text-white">
             <CloseIcon />
           </button>
-        )}
-      </div>
-      <nav className="flex flex-col gap-1">
-        <ReactRouterDOM.NavLink to="/" end onClick={handleLinkClick} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><DashboardIcon /><span>Monitoreo</span></ReactRouterDOM.NavLink>
-        <ReactRouterDOM.NavLink to="/sensors" onClick={handleLinkClick} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><SensorIcon /><span>Sensores</span></ReactRouterDOM.NavLink>
-        <ReactRouterDOM.NavLink to="/alerts" onClick={handleLinkClick} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><AlertIcon /><span>Alertas</span></ReactRouterDOM.NavLink>
-        <ReactRouterDOM.NavLink to="/history" onClick={handleLinkClick} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><HistoryIcon /><span>Histórico</span></ReactRouterDOM.NavLink>
-      </nav>
-      <div className="mt-auto p-3 flex items-center gap-3 bg-slate-900/50 rounded-lg">
-          <img src="https://picsum.photos/seed/user/40/40" alt="User" className="w-10 h-10 rounded-full" />
-          <div>
-              <div className="font-semibold text-white">Alexander Maigua</div>
-              <div className="text-xs text-slate-400">Admin</div>
-          </div>
-      </div>
-    </aside>
-  );
-};
-
-// FIX: The Layout component is compatible with v6, passing routes as children.
-// FIX: Explicitly type `children` prop for compatibility with React 18 types for functional components.
-const Layout: React.FC<PropsWithChildren> = ({ children }) => {
-  const { isSidebarOpen, setSidebarOpen, isMobile } = useApp();
-
-  return (
-    <div className="relative min-h-screen bg-slate-100">
-      {isMobile && isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/60 z-20" 
-          onClick={() => setSidebarOpen(false)}
-        ></div>
-      )}
-      <div className={`transform ${isMobile ? (isSidebarOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'}`}>
-        <Sidebar />
-      </div>
-      <div className={`transition-all duration-300 ease-in-out ${isMobile ? 'ml-0' : 'ml-64'}`}>
-        {isMobile && (
-          <header className="sticky top-0 bg-white/80 backdrop-blur-lg shadow-sm z-10 p-4 flex items-center justify-between">
-             <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg grid place-items-center bg-gradient-to-br from-brand to-cyan-400 text-white font-bold text-sm">
-                  PP
-                </div>
-                <span className="font-bold text-md text-slate-800">Aire Patricia Pilar</span>
-              </div>
-            <button onClick={() => setSidebarOpen(true)} className="text-slate-600 hover:text-slate-900">
-              <MenuIcon />
-            </button>
-          </header>
-        )}
-        <div className="w-full">
-          {children}
         </div>
-      </div>
-    </div>
+        <nav className="flex flex-col gap-1">
+          <ReactRouterDOM.NavLink to="/" end onClick={closeSidebar} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><DashboardIcon /><span>Monitoreo</span></ReactRouterDOM.NavLink>
+          <ReactRouterDOM.NavLink to="/sensors" onClick={closeSidebar} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><SensorIcon /><span>Sensores</span></ReactRouterDOM.NavLink>
+          <ReactRouterDOM.NavLink to="/alerts" onClick={closeSidebar} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><AlertIcon /><span>Alertas</span></ReactRouterDOM.NavLink>
+          <ReactRouterDOM.NavLink to="/history" onClick={closeSidebar} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><HistoryIcon /><span>Histórico</span></ReactRouterDOM.NavLink>
+        </nav>
+        <div className="mt-auto p-3 flex items-center gap-3 bg-slate-900/50 rounded-lg">
+            <img src="https://picsum.photos/seed/user/40/40" alt="User" className="w-10 h-10 rounded-full" />
+            <div>
+                <div className="font-semibold text-white">Alexander Maigua</div>
+                <div className="text-xs text-slate-400">Admin</div>
+            </div>
+        </div>
+      </aside>
+    </>
   );
 };
 
-// FIX: Refactored App to use react-router-dom v6/v7 components like Routes and the `element` prop on Route.
+interface HeaderProps {
+    title: string;
+    onMenuClick: () => void;
+}
+const Header: React.FC<HeaderProps> = ({ title, onMenuClick }) => {
+    return (
+        <header className="sticky top-0 bg-slate-100/80 backdrop-blur-md z-5 p-4 border-b border-slate-200 flex items-center h-16">
+            <button onClick={onMenuClick} className="lg:hidden mr-4 text-slate-600 hover:text-slate-900" aria-label="Open menu">
+                <MenuIcon />
+            </button>
+            <h1 className="text-xl font-bold text-slate-800">{title}</h1>
+        </header>
+    );
+};
+
+const Layout: React.FC<PropsWithChildren> = ({ children }) => {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const location = ReactRouterDOM.useLocation();
+
+    useEffect(() => {
+        setSidebarOpen(false);
+    }, [location.pathname]);
+
+    const getPageTitle = (pathname: string) => {
+        switch (pathname) {
+            case '/': return 'Monitoring Dashboard';
+            case '/sensors': return 'Informacion de Sensores';
+            case '/alerts': return 'Registro de Alertas';
+            case '/history': return 'Histórico de Datos';
+            default: return 'Air Quality';
+        }
+    };
+    
+    return (
+        <div className="flex">
+            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+            <div className="flex-1 lg:ml-64 w-full min-h-screen bg-slate-100">
+                <Header title={getPageTitle(location.pathname)} onMenuClick={() => setSidebarOpen(true)} />
+                <main className="p-4">{children}</main>
+            </div>
+        </div>
+    );
+};
+
 function App() {
   const [showNotificationBanner, setShowNotificationBanner] = useState(false);
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const isMobile = useMediaQuery('(max-width: 768px)');
 
   useEffect(() => {
     if ('Notification' in window) {
@@ -869,12 +840,6 @@ function App() {
       }
     }
   }, []);
-  
-  useEffect(() => {
-    if (!isMobile) {
-      setSidebarOpen(false);
-    }
-  }, [isMobile]);
 
   const handleAllowNotifications = () => {
     Notification.requestPermission().then(permission => {
@@ -890,24 +855,22 @@ function App() {
   };
 
   return (
-    <AppContext.Provider value={{ isSidebarOpen, setSidebarOpen, isMobile }}>
-      <ReactRouterDOM.HashRouter>
-        <Layout>
-          <ReactRouterDOM.Routes>
-            <ReactRouterDOM.Route path="/" element={<DashboardPage />} />
-            <ReactRouterDOM.Route path="/sensors" element={<SensorsPage />} />
-            <ReactRouterDOM.Route path="/alerts" element={<AlertsPage />} />
-            <ReactRouterDOM.Route path="/history" element={<HistoryPage />} />
-          </ReactRouterDOM.Routes>
-        </Layout>
-        {showNotificationBanner && (
-          <NotificationBanner
-            onAllow={handleAllowNotifications}
-            onBlock={handleBlockNotifications}
-          />
-        )}
-      </ReactRouterDOM.HashRouter>
-    </AppContext.Provider>
+    <ReactRouterDOM.HashRouter>
+      <Layout>
+        <ReactRouterDOM.Routes>
+          <ReactRouterDOM.Route path="/" element={<DashboardPage />} />
+          <ReactRouterDOM.Route path="/sensors" element={<SensorsPage />} />
+          <ReactRouterDOM.Route path="/alerts" element={<AlertsPage />} />
+          <ReactRouterDOM.Route path="/history" element={<HistoryPage />} />
+        </ReactRouterDOM.Routes>
+      </Layout>
+      {showNotificationBanner && (
+        <NotificationBanner
+          onAllow={handleAllowNotifications}
+          onBlock={handleBlockNotifications}
+        />
+      )}
+    </ReactRouterDOM.HashRouter>
   );
 }
 
