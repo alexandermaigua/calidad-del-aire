@@ -284,74 +284,6 @@ const useRealtimeData = () => {
 };
 
 
-const Sidebar: React.FC<{ isOpen: boolean; toggle: () => void }> = ({ isOpen, toggle }) => {
-  const navLinkClass = "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white";
-  const activeNavLinkClass = "bg-brand-dark text-white";
-  
-  return (
-    <aside className={`fixed top-0 left-0 bottom-0 bg-slate-800 text-white p-4 flex flex-col z-20 transition-all duration-300 ${isOpen ? 'w-56 md:w-64' : 'w-0 p-0 overflow-hidden'}`}>
-      <div className={`flex items-center gap-3 p-2 mb-4 transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
-        <div className="w-10 h-10 rounded-xl grid place-items-center bg-gradient-to-br from-brand to-cyan-400 text-white font-bold text-lg">
-          PP
-        </div>
-        <span className="font-bold text-lg">Aire Patricia Pilar</span>
-      </div>
-      <nav className={`flex flex-col gap-1 transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
-        <ReactRouterDOM.NavLink to="/" end className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><DashboardIcon /><span>Monitoreo</span></ReactRouterDOM.NavLink>
-        <ReactRouterDOM.NavLink to="/sensors" className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><SensorIcon /><span>Sensores</span></ReactRouterDOM.NavLink>
-        <ReactRouterDOM.NavLink to="/alerts" className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><AlertIcon /><span>Alertas</span></ReactRouterDOM.NavLink>
-        <ReactRouterDOM.NavLink to="/history" className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><HistoryIcon /><span>Histórico</span></ReactRouterDOM.NavLink>
-      </nav>
-      <div className={`mt-auto p-3 flex items-center gap-3 bg-slate-900/50 rounded-lg transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
-          <img src="https://picsum.photos/seed/user/40/40" alt="User" className="w-10 h-10 rounded-full" />
-          <div>
-              <div className="font-semibold text-white">Alexander Maigua</div>
-              <div className="text-xs text-slate-400">Admin</div>
-          </div>
-      </div>
-    </aside>
-  );
-};
-
-const Layout: React.FC<PropsWithChildren> = ({ children }) => {
-  const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!isSidebarOpen);
-  };
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth > 768) {
-        setSidebarOpen(true);
-      } else {
-        setSidebarOpen(false);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  return (
-    <div className="flex">
-      <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar} />
-      <div className={`min-h-screen bg-slate-100 transition-all duration-300 ${isSidebarOpen ? 'ml-56 md:ml-64' : 'ml-0 w-full'}`}>
-        <header className="md:hidden p-4 bg-slate-800 text-white flex justify-between items-center fixed top-0 left-0 w-full z-10">
-          <button onClick={toggleSidebar}>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-            </svg>
-          </button>
-          <h1 className="text-lg font-bold">Monitoring Dashboard</h1>
-        </header>
-        <div className="md:pt-0 pt-16">
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // --- DASHBOARD PAGE ---
 const DashboardPage: React.FC = () => {
   const { latestReadings, weather, history, loading } = useRealtimeData();
@@ -411,23 +343,23 @@ const DashboardPage: React.FC = () => {
 
   return (
     <>
-      <header className="p-6 hidden md:block">
+      <header className="p-6">
         <h2 className="text-2xl font-bold text-slate-800">Panel de Monitoreo</h2>
       </header>
-      <main className="px-4 pb-6 sm:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 flex flex-col justify-between col-span-1">
+      <main className="px-6 pb-6">
+        <div className="grid grid-cols-12 gap-4">
+          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 flex flex-col justify-between col-span-12 md:col-span-6 lg:col-span-4 xl:col-span-3">
             <div>
                 <h3 className="font-bold text-slate-800">Índice AQI (Calculado)</h3>
-                <div className="text-4xl sm:text-5xl font-extrabold bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text">{latestReadings.aqi}</div>
+                <div className="text-6xl font-extrabold bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text">{latestReadings.aqi}</div>
             </div>
             <div className={`text-sm font-bold px-3 py-1 rounded-full self-start ${aqiInfo.className}`}>{aqiInfo.text}</div>
           </div>
 
-          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-full flex flex-col md:flex-row items-center gap-6">
+          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12 md:col-span-6 lg:col-span-8 xl:col-span-3">
             <div className="flex items-center gap-4">
                 <div className="text-4xl">⛅</div>
-                <div className="text-3xl sm:text-4xl font-bold text-slate-800">{weather.tempC.toFixed(1)}°C</div>
+                <div className="text-4xl font-bold text-slate-800">{weather.tempC.toFixed(1)}°C</div>
             </div>
             <div className="grid grid-cols-[auto_1fr_auto] gap-2 items-center my-2 text-sm">
                 <div>AQI:</div>
@@ -447,7 +379,7 @@ const DashboardPage: React.FC = () => {
           <Gauge value={latestReadings.co} max={150} label="Monóxido (CO)" unit="ppm" />
           <Gauge value={latestReadings.pm25} max={100} label="PM₂.₅" unit="µg/m³" />
 
-          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-1 md:col-span-2 lg:col-span-4">
+          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12">
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-8 gap-y-4">
               <div>
                 <div className="flex justify-between items-baseline mb-2">
@@ -475,6 +407,388 @@ const DashboardPage: React.FC = () => {
     </>
   );
 };
+
+// --- ALERTS PAGE ---
+const AlertsPage = () => {
+    const { alerts, loading } = useRealtimeData();
+
+    const exportToCsv = () => {
+        if (!alerts.length) return alert('No alerts to export.');
+        const headers = ['Timestamp', 'Type', 'Level', 'Value', 'Message'];
+        const csvRows = [
+            headers.join(','),
+            ...alerts.map(a => [
+                `"${new Date(a.ts).toLocaleString()}"`,
+                `"${a.type}"`,
+                `"${a.level}"`,
+                a.value,
+                `"${a.message}"`
+            ].join(','))
+        ];
+        const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'air_quality_alerts.csv'; a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const clearAlerts = async () => {
+        if (window.confirm('Are you sure you want to delete ALL alerts? This cannot be undone.')) {
+            try {
+                await db.ref('alerts').remove();
+                alert('Alerts cleared successfully.');
+            } catch (error) {
+                console.error("Error clearing alerts: ", error);
+                alert('Failed to clear alerts.');
+            }
+        }
+    };
+
+    const pillClasses: { [key: string]: string } = {
+      good: 'bg-green-100 text-green-800 border-green-200',
+      mod: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      warn: 'bg-orange-100 text-orange-800 border-orange-200',
+      bad: 'bg-red-100 text-red-800 border-red-200',
+    };
+
+    return (
+        <>
+            <header className="p-6 flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-slate-800">Registro de Alertas</h2>
+                <div className="flex gap-2">
+                    <button onClick={exportToCsv} className="px-4 py-2 bg-white border border-slate-300 rounded-lg font-semibold text-sm text-slate-700 hover:bg-slate-50 transition">Export CSV</button>
+                    <button onClick={clearAlerts} className="px-4 py-2 bg-red-500 text-white rounded-lg font-semibold text-sm hover:bg-red-600 transition">Clear Log</button>
+                </div>
+            </header>
+            <main className="px-6 pb-6">
+                 <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left text-slate-500">
+                            <thead className="text-xs text-slate-700 uppercase bg-slate-50">
+                                <tr>
+                                    <th scope="col" className="px-6 py-3">Date & Time</th>
+                                    <th scope="col" className="px-6 py-3">Type</th>
+                                    <th scope="col" className="px-6 py-3">Level</th>
+                                    <th scope="col" className="px-6 py-3">Value</th>
+                                    <th scope="col" className="px-6 py-3">Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {loading ? (
+                                    <tr><td colSpan={5} className="text-center p-8">Loading alerts...</td></tr>
+                                ) : alerts.length === 0 ? (
+                                    <tr><td colSpan={5} className="text-center p-8">No alerts recorded yet.</td></tr>
+                                ) : (
+                                    alerts.map(alert => (
+                                        <tr key={alert.id} className="bg-white border-b hover:bg-slate-50">
+                                            <td className="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">{new Date(alert.ts).toLocaleString()}</td>
+                                            <td className="px-6 py-4">{alert.type}</td>
+                                            <td className="px-6 py-4"><span className={`px-2 py-0.5 rounded-full font-semibold border ${pillClasses[alert.cls] || 'bg-slate-100 text-slate-800 border-slate-200'}`}>{alert.level}</span></td>
+                                            <td className="px-6 py-4">{alert.value}</td>
+                                            <td className="px-6 py-4">{alert.message}</td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                 </div>
+            </main>
+        </>
+    );
+};
+
+
+// --- SENSORS PAGE ---
+const SensorCard: React.FC<{ name: string, description: string, image: string }> = ({ name, description, image }) => (
+    <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12 flex items-center gap-6">
+        <div className="w-32 h-32 flex-shrink-0">
+            <img src={image} alt={`Imagen del sensor ${name}`} className="w-full h-full object-cover rounded-lg border border-slate-200" />
+        </div>
+        <div>
+            <h3 className="text-xl font-bold text-slate-800 mb-1">{name}</h3>
+            <p className="text-slate-600 text-sm">{description}</p>
+        </div>
+    </div>
+);
+
+const SENSORS_LIST = [
+    { name: 'MQ-7 (Sensor de Monóxido de Carbono)', description: 'El MQ-7 es un sensor semiconductor diseñado para detectar monóxido de carbono (CO). Utiliza óxido de estaño (SnO2) en un tubo calentado que modifica su resistencia eléctrica en presencia de CO, haciéndolo ideal para detección rápida y económica de este gas peligroso, inodoro y tóxico. El sensor tiene una salida analógica proporcional a la concentración de CO y una salida digital mediante comparador para niveles umbral. Es ampliamente usado en aplicaciones domésticas y industriales para seguridad ambiental.', image: '/imagenes/MQ7.jpg' },
+    { name: 'MQ-131 (Sensor de Ozono O3)', description: 'El MQ-131 detecta ozono (O3) en rangos típicos de 10 a 1000 ppm. Es un sensor basado en óxido de estaño que modula su resistencia conforme varían concentraciones de ozono, con alta sensibilidad en entornos industriales y urbanos. Su uso incluye monitoreo ambiental para calidad del aire, ayudando a detectar contaminantes oxidantes peligrosos.', image: '/imagenes/MQ131.jpg' },
+    { name: 'MQ-5 (Sensor de Glp)', description: 'El MQ-5 es un sensor semiconductor diseñado para la detección de gases inflamables como gas natural, gas licuado de petróleo (GLP), hidrógeno y vapores de alcohol. Su funcionamiento se basa en un material sensible cuya resistencia eléctrica varía ante la presencia de estos gases, generando una señal analógica proporcional a su concentración. Es ampliamente utilizado en sistemas de monitoreo y seguridad para la prevención de fugas y la detección temprana de gases combustibles en el ambiente.', image: '/imagenes/MQ135.jpg' },
+    { name: 'BME280 (Sensor Ambiental Digital)', description: 'El BME280 es un sensor ambiental digital que mide humedad relativa, presión barométrica y temperatura con alta precisión. Basado en tecnología MEMS y con interfaces I2C y SPI, es compacto y consume poca energía, ideal para dispositivos portátiles, domótica, estaciones climáticas y sistemas IoT. Ofrece modos de operación configurables para balancear precisión y consumo.', image: '/imagenes/BME280.jpg' },
+    { name: 'DSM501A (Sensor de Polvo/Partículas)', description: 'DSM501A es un sensor óptico para detectar partículas de polvo y calidad del aire. Utiliza un LED infrarrojo y un fotodiodo para medir la concentración de polvo en suspensión mediante dispersión de luz. Proporciona una salida digital proporcional a la densidad de partículas, útil en sistemas de monitoreo de contaminación ambiental y sistemas HVAC.', image: '/imagenes/DSM501A.jpg' },
+];
+
+const SensorsPage = () => (
+    <>
+        <header className="p-6">
+            <h2 className="text-2xl font-bold text-slate-800">Informacion de Sensores</h2>
+        </header>
+        <main className="px-6 pb-6">
+            <div className="grid grid-cols-12 gap-4">
+                <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12">
+                    <p className="text-slate-600">El sistema de monitoreo de calidad del aire en la parroquia Patricia Pilar integra sensores de gases, material particulado y variables ambientales. La combinación de estos dispositivos permite generar indicadores como el AQI y brindar soporte a decisiones de salud y ambiente.</p>
+                </div>
+                {SENSORS_LIST.map(sensor => <SensorCard key={sensor.name} name={sensor.name} description={sensor.description} image={sensor.image} />)}
+            </div>
+        </main>
+    </>
+);
+
+// --- HISTORY PAGE ---
+const VARIABLE_OPTIONS = [
+  { key: 'co', path: 'gases.co_ppm', label: 'Monóxido (CO)', unit: 'ppm' },
+  { key: 'o3', path: 'gases.o3_ppm', label: 'Ozono (O₃)', unit: 'ppb' },
+  { key: 'pm25', path: 'particulates.pm25_mgm3', label: 'PM₂.₅', unit: 'µg/m³' },
+  { key: 'glp', path: 'gases.lpg_ppm', label: 'Gas Licuado de Petróleo (GLP)', unit: 'ppm' },
+  { key: 'temperature', path: 'environment.temperature', label: 'Temperatura', unit: '°C' },
+  { key: 'humidity', path: 'environment.humidity', label: 'Humedad', unit: '%' },
+  { key: 'pressure', path: 'environment.pressure', label: 'Presión', unit: 'hPa' },
+];
+
+// Helper to get nested property value
+const getNestedValue = (obj: any, path: string): number | undefined => {
+    const value = path.split('.').reduce((acc, part) => acc && acc[part], obj);
+    return typeof value === 'number' ? value : undefined;
+};
+
+const HistoryChart: React.FC<{data: any[], variable: {label: string, unit: string}}> = ({ data, variable }) => {
+    if (!data || data.length === 0) return null;
+
+    const tickInterval = Math.ceil(data.length / 24);
+
+    return (
+        <ResponsiveContainer width="100%" height={400}>
+            <AreaChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 20 }}>
+                <defs>
+                    <linearGradient id="historyGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                    </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                <XAxis 
+                    dataKey="time" 
+                    tick={{ fontSize: 12, fill: '#64748b' }} 
+                    axisLine={{ stroke: '#cbd5e1' }} 
+                    tickLine={{ stroke: '#cbd5e1' }}
+                    interval={tickInterval > 0 ? tickInterval -1 : 0}
+                />
+                <YAxis 
+                    tick={{ fontSize: 12, fill: '#64748b' }} 
+                    axisLine={{ stroke: '#cbd5e1' }} 
+                    tickLine={{ stroke: '#cbd5e1' }}
+                    label={{ value: variable.unit, angle: -90, position: 'insideLeft', offset: -5, fill: '#64748b', fontSize: 12 }}
+                />
+                <Tooltip
+                    contentStyle={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                    }}
+                    labelStyle={{ fontWeight: 'bold', color: '#1e293b' }}
+                    formatter={(value: number) => [`${value.toFixed(2)} ${variable.unit}`, null]}
+                />
+                <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: '20px' }} />
+                <Area 
+                    type="monotone" 
+                    dataKey="value" 
+                    name={variable.label}
+                    stroke="#2563eb" 
+                    fillOpacity={1} 
+                    fill="url(#historyGradient)" 
+                    strokeWidth={2}
+                />
+            </AreaChart>
+        </ResponsiveContainer>
+    );
+};
+
+const HistoryPage = () => {
+    const [selectedVariable, setSelectedVariable] = useState(VARIABLE_OPTIONS[0].key);
+    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+    const [chartData, setChartData] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState('Seleccione una variable y fecha para generar un gráfico.');
+
+    const handleGenerateChart = async () => {
+        setLoading(true);
+        setMessage('');
+        setChartData([]);
+
+        try {
+            const snapshot = await db.ref(`sensor_data/${selectedDate}`).once('value');
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const variableInfo = VARIABLE_OPTIONS.find(v => v.key === selectedVariable)!;
+
+                const processedData = Object.entries(data as Record<string, DeviceData>)
+                    .map(([time, record]) => {
+                        const fullTimestamp = `${selectedDate}T${time.replace(/-/g, ':')}`;
+                        return {
+                            time: time.substring(0, 5), // 'HH-MM' for chart label
+                            fullTimestamp, // full timestamp for CSV
+                            value: getNestedValue(record, variableInfo.path)
+                        };
+                    })
+                    .filter(item => item.value !== undefined && !isNaN(item.value))
+                    .sort((a, b) => a.time.localeCompare(b.time));
+
+                if (processedData.length > 0) {
+                    setChartData(processedData);
+                } else {
+                    setMessage(`No hay datos para la variable '${variableInfo.label}' en la fecha seleccionada.`);
+                }
+            } else {
+                setMessage('No se encontraron datos para la fecha seleccionada.');
+            }
+        } catch (error) {
+            console.error("Error fetching historical data:", error);
+            setMessage('Ocurrió un error al cargar los datos.');
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    const exportHistoryToCsv = () => {
+        if (!chartData.length) {
+            alert('No hay datos para exportar. Por favor, genere un gráfico primero.');
+            return;
+        }
+
+        const variableInfo = VARIABLE_OPTIONS.find(v => v.key === selectedVariable)!;
+        const fileName = `historico_${selectedDate}_${variableInfo.key}.csv`;
+
+        const headers = ['Timestamp', variableInfo.label];
+        const csvRows = [
+            headers.join(','),
+            ...chartData.map(d => [
+                `"${new Date(d.fullTimestamp).toLocaleString()}"`,
+                d.value
+            ].join(','))
+        ];
+        
+        const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const currentVariableInfo = VARIABLE_OPTIONS.find(v => v.key === selectedVariable)!;
+
+    return (
+         <>
+            <header className="p-6">
+                <h2 className="text-2xl font-bold text-slate-800">Histórico de Datos</h2>
+            </header>
+            <main className="px-6 pb-6">
+                <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 mb-4">
+                    <div className="flex flex-wrap items-end gap-4">
+                        <div className="flex-1 min-w-[200px]">
+                            <label htmlFor="variable-select" className="block text-sm font-medium text-slate-700 mb-1">Variable</label>
+                            <select 
+                                id="variable-select" 
+                                value={selectedVariable}
+                                onChange={(e) => setSelectedVariable(e.target.value)}
+                                className="w-full px-3 py-2 bg-slate-800 text-white border border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-brand"
+                            >
+                                {VARIABLE_OPTIONS.map(option => (
+                                    <option key={option.key} value={option.key} className="bg-slate-800 text-white">{option.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="flex-1 min-w-[150px]">
+                            <label htmlFor="date-picker" className="block text-sm font-medium text-slate-700 mb-1">Fecha</label>
+                            <input 
+                                type="date" 
+                                id="date-picker"
+                                value={selectedDate}
+                                onChange={(e) => setSelectedDate(e.target.value)}
+                                className="w-full px-3 py-2 bg-slate-800 text-white border border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-brand"
+                                style={{ colorScheme: 'dark' }}
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={handleGenerateChart}
+                                disabled={loading}
+                                className="w-full sm:w-auto px-6 py-2 bg-brand text-white font-semibold rounded-md shadow-sm hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand disabled:bg-slate-400 disabled:cursor-not-allowed"
+                            >
+                                {loading ? 'Generando...' : 'Generar Gráfico'}
+                            </button>
+                            <button
+                                onClick={exportHistoryToCsv}
+                                disabled={loading || chartData.length === 0}
+                                className="px-4 py-2 bg-white border border-slate-300 rounded-md font-semibold text-sm text-slate-700 hover:bg-slate-50 transition disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed"
+                            >
+                                Exportar CSV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 min-h-[468px] flex items-center justify-center">
+                    {loading ? (
+                        <p className="text-slate-500">Cargando datos del gráfico...</p>
+                    ) : chartData.length > 0 ? (
+                        <HistoryChart data={chartData} variable={{label: currentVariableInfo.label, unit: currentVariableInfo.unit}} />
+                    ) : (
+                        <p className="text-slate-500">{message}</p>
+                    )}
+                </div>
+            </main>
+        </>
+    )
+};
+
+
+// --- LAYOUT & APP ---
+// FIX: Updated Sidebar to be compatible with react-router-dom v6/v7, using a function for className and the `end` prop for the root NavLink.
+const Sidebar: React.FC = () => {
+  const navLinkClass = "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white";
+  const activeNavLinkClass = "bg-brand-dark text-white";
+  
+  return (
+    <aside className="fixed top-0 left-0 bottom-0 w-64 bg-slate-800 text-white p-4 flex flex-col z-10">
+      <div className="flex items-center gap-3 p-2 mb-4">
+        <div className="w-10 h-10 rounded-xl grid place-items-center bg-gradient-to-br from-brand to-cyan-400 text-white font-bold text-lg">
+          PP
+        </div>
+        <span className="font-bold text-lg">Aire Patricia Pilar</span>
+      </div>
+      <nav className="flex flex-col gap-1">
+        {/* FIX: Replaced ReactRouterDOM.NavLink with NavLink from named import to fix component not found errors. */}
+        <ReactRouterDOM.NavLink to="/" end className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><DashboardIcon /><span>Monitoreo</span></ReactRouterDOM.NavLink>
+        <ReactRouterDOM.NavLink to="/sensors" className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><SensorIcon /><span>Sensores</span></ReactRouterDOM.NavLink>
+        <ReactRouterDOM.NavLink to="/alerts" className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><AlertIcon /><span>Alertas</span></ReactRouterDOM.NavLink>
+        <ReactRouterDOM.NavLink to="/history" className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><HistoryIcon /><span>Histórico</span></ReactRouterDOM.NavLink>
+      </nav>
+      <div className="mt-auto p-3 flex items-center gap-3 bg-slate-900/50 rounded-lg">
+          <img src="https://picsum.photos/seed/user/40/40" alt="User" className="w-10 h-10 rounded-full" />
+          <div>
+              <div className="font-semibold text-white">Alexander Maigua</div>
+              <div className="text-xs text-slate-400">Admin</div>
+          </div>
+      </div>
+    </aside>
+  );
+};
+
+// FIX: The Layout component is compatible with v6, passing routes as children.
+// FIX: Explicitly type `children` prop for compatibility with React 18 types for functional components.
+const Layout: React.FC<PropsWithChildren> = ({ children }) => (
+  <div className="flex">
+    <Sidebar />
+    <div className="ml-64 w-[calc(100%-256px)] min-h-screen bg-slate-100">
+      {children}
+    </div>
+  </div>
+);
 
 // FIX: Refactored App to use react-router-dom v6/v7 components like Routes and the `element` prop on Route.
 function App() {
