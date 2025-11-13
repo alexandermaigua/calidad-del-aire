@@ -531,7 +531,7 @@ const SensorsPage = () => (
         <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12">
             <p className="text-slate-600">El sistema de monitoreo de calidad del aire en la parroquia Patricia Pilar integra sensores de gases, material particulado y variables ambientales. La combinación de estos dispositivos permite generar indicadores como el AQI y brindar soporte a decisiones de salud y ambiente.</p>
         </div>
-        {SENSORS_LIST.map(sensor => <SensorCard key={sensor.name} name={sensor.name} description={sensor.description} />)}
+        {SENSORS_LIST.map(sensor => <SensorCard key={sensor.name} name={sensor.name} description={sensor.description} image={sensor.image} />)}
     </div>
 );
 
