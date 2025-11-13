@@ -14,10 +14,35 @@ import {
 } from 'recharts';
 import { db } from './services/firebase';
 import { SensorData, WeatherData, AlertRecord, AqiLevel, HistoricalData, DeviceData } from './types';
-import { DashboardIcon, SensorIcon, AlertIcon, HistoryIcon } from './components/Icons';
+import { DashboardIcon, SensorIcon, AlertIcon, HistoryIcon, MenuIcon, CloseIcon } from './components/Icons';
 import { NotificationBanner } from './components/NotificationBanner';
 import { Gauge } from './components/Gauge';
 import { AqiChart } from './components/AqiChart';
+
+// --- CONTEXT & HOOKS ---
+const AppContext = createContext<{
+  isSidebarOpen: boolean;
+  setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isMobile: boolean;
+}>({
+  isSidebarOpen: false,
+  setSidebarOpen: () => {},
+  isMobile: false,
+});
+
+const useApp = () => useContext(AppContext);
+
+const useMediaQuery = (query: string) => {
+  const [matches, setMatches] = useState(window.matchMedia(query).matches);
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    const listener = () => setMatches(media.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, [query]);
+  return matches;
+};
+
 
 // --- CONSTANTS & HELPERS ---
 const POLLUTANT_THRESH = { pm25: { warn: 35.5, bad: 55.5 }, o3: { warn: 125, bad: 200 } };
@@ -347,8 +372,8 @@ const DashboardPage: React.FC = () => {
         <h2 className="text-2xl font-bold text-slate-800">Panel de Monitoreo</h2>
       </header>
       <main className="px-6 pb-6">
-        <div className="grid grid-cols-12 gap-4">
-          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 flex flex-col justify-between col-span-12 md:col-span-6 lg:col-span-4 xl:col-span-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 flex flex-col justify-between col-span-1 sm:col-span-2 lg:col-span-1">
             <div>
                 <h3 className="font-bold text-slate-800">Índice AQI (Calculado)</h3>
                 <div className="text-6xl font-extrabold bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text">{latestReadings.aqi}</div>
@@ -356,7 +381,7 @@ const DashboardPage: React.FC = () => {
             <div className={`text-sm font-bold px-3 py-1 rounded-full self-start ${aqiInfo.className}`}>{aqiInfo.text}</div>
           </div>
 
-          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12 md:col-span-6 lg:col-span-8 xl:col-span-3">
+          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-1 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-4">
                 <div className="text-4xl">⛅</div>
                 <div className="text-4xl font-bold text-slate-800">{weather.tempC.toFixed(1)}°C</div>
@@ -379,7 +404,7 @@ const DashboardPage: React.FC = () => {
           <Gauge value={latestReadings.co} max={150} label="Monóxido (CO)" unit="ppm" />
           <Gauge value={latestReadings.pm25} max={100} label="PM₂.₅" unit="µg/m³" />
 
-          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12">
+          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-1 sm:col-span-2 lg:col-span-4">
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-8 gap-y-4">
               <div>
                 <div className="flex justify-between items-baseline mb-2">
@@ -453,9 +478,9 @@ const AlertsPage = () => {
 
     return (
         <>
-            <header className="p-6 flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-slate-800">Registro de Alertas</h2>
-                <div className="flex gap-2">
+            <header className="p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <h2 className="text-2xl font-bold text-slate-800 text-center sm:text-left">Registro de Alertas</h2>
+                <div className="flex gap-2 justify-center">
                     <button onClick={exportToCsv} className="px-4 py-2 bg-white border border-slate-300 rounded-lg font-semibold text-sm text-slate-700 hover:bg-slate-50 transition">Export CSV</button>
                     <button onClick={clearAlerts} className="px-4 py-2 bg-red-500 text-white rounded-lg font-semibold text-sm hover:bg-red-600 transition">Clear Log</button>
                 </div>
@@ -501,13 +526,13 @@ const AlertsPage = () => {
 
 // --- SENSORS PAGE ---
 const SensorCard: React.FC<{ name: string, description: string, image: string }> = ({ name, description, image }) => (
-    <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12 flex items-center gap-6">
+    <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12 flex flex-col sm:flex-row items-center gap-6">
         <div className="w-32 h-32 flex-shrink-0">
             <img src={image} alt={`Imagen del sensor ${name}`} className="w-full h-full object-cover rounded-lg border border-slate-200" />
         </div>
         <div>
-            <h3 className="text-xl font-bold text-slate-800 mb-1">{name}</h3>
-            <p className="text-slate-600 text-sm">{description}</p>
+            <h3 className="text-xl font-bold text-slate-800 mb-1 text-center sm:text-left">{name}</h3>
+            <p className="text-slate-600 text-sm text-center sm:text-left">{description}</p>
         </div>
     </div>
 );
@@ -526,7 +551,7 @@ const SensorsPage = () => (
             <h2 className="text-2xl font-bold text-slate-800">Informacion de Sensores</h2>
         </header>
         <main className="px-6 pb-6">
-            <div className="grid grid-cols-12 gap-4">
+            <div className="grid grid-cols-1 gap-4">
                 <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12">
                     <p className="text-slate-600">El sistema de monitoreo de calidad del aire en la parroquia Patricia Pilar integra sensores de gases, material particulado y variables ambientales. La combinación de estos dispositivos permite generar indicadores como el AQI y brindar soporte a decisiones de salud y ambiente.</p>
                 </div>
@@ -750,23 +775,36 @@ const HistoryPage = () => {
 // --- LAYOUT & APP ---
 // FIX: Updated Sidebar to be compatible with react-router-dom v6/v7, using a function for className and the `end` prop for the root NavLink.
 const Sidebar: React.FC = () => {
+  const { isMobile, setSidebarOpen } = useApp();
   const navLinkClass = "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white";
   const activeNavLinkClass = "bg-brand-dark text-white";
+
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
   
   return (
-    <aside className="fixed top-0 left-0 bottom-0 w-64 bg-slate-800 text-white p-4 flex flex-col z-10">
-      <div className="flex items-center gap-3 p-2 mb-4">
-        <div className="w-10 h-10 rounded-xl grid place-items-center bg-gradient-to-br from-brand to-cyan-400 text-white font-bold text-lg">
-          PP
+    <aside className="fixed top-0 left-0 bottom-0 w-64 bg-slate-800 text-white p-4 flex flex-col z-30 transition-transform duration-300 ease-in-out">
+      <div className="flex items-center justify-between p-2 mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl grid place-items-center bg-gradient-to-br from-brand to-cyan-400 text-white font-bold text-lg">
+            PP
+          </div>
+          <span className="font-bold text-lg">Aire Patricia Pilar</span>
         </div>
-        <span className="font-bold text-lg">Aire Patricia Pilar</span>
+        {isMobile && (
+          <button onClick={() => setSidebarOpen(false)} className="text-slate-400 hover:text-white">
+            <CloseIcon />
+          </button>
+        )}
       </div>
       <nav className="flex flex-col gap-1">
-        {/* FIX: Replaced ReactRouterDOM.NavLink with NavLink from named import to fix component not found errors. */}
-        <ReactRouterDOM.NavLink to="/" end className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><DashboardIcon /><span>Monitoreo</span></ReactRouterDOM.NavLink>
-        <ReactRouterDOM.NavLink to="/sensors" className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><SensorIcon /><span>Sensores</span></ReactRouterDOM.NavLink>
-        <ReactRouterDOM.NavLink to="/alerts" className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><AlertIcon /><span>Alertas</span></ReactRouterDOM.NavLink>
-        <ReactRouterDOM.NavLink to="/history" className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><HistoryIcon /><span>Histórico</span></ReactRouterDOM.NavLink>
+        <ReactRouterDOM.NavLink to="/" end onClick={handleLinkClick} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><DashboardIcon /><span>Monitoreo</span></ReactRouterDOM.NavLink>
+        <ReactRouterDOM.NavLink to="/sensors" onClick={handleLinkClick} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><SensorIcon /><span>Sensores</span></ReactRouterDOM.NavLink>
+        <ReactRouterDOM.NavLink to="/alerts" onClick={handleLinkClick} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><AlertIcon /><span>Alertas</span></ReactRouterDOM.NavLink>
+        <ReactRouterDOM.NavLink to="/history" onClick={handleLinkClick} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><HistoryIcon /><span>Histórico</span></ReactRouterDOM.NavLink>
       </nav>
       <div className="mt-auto p-3 flex items-center gap-3 bg-slate-900/50 rounded-lg">
           <img src="https://picsum.photos/seed/user/40/40" alt="User" className="w-10 h-10 rounded-full" />
@@ -781,18 +819,47 @@ const Sidebar: React.FC = () => {
 
 // FIX: The Layout component is compatible with v6, passing routes as children.
 // FIX: Explicitly type `children` prop for compatibility with React 18 types for functional components.
-const Layout: React.FC<PropsWithChildren> = ({ children }) => (
-  <div className="flex">
-    <Sidebar />
-    <div className="ml-64 w-[calc(100%-256px)] min-h-screen bg-slate-100">
-      {children}
+const Layout: React.FC<PropsWithChildren> = ({ children }) => {
+  const { isSidebarOpen, setSidebarOpen, isMobile } = useApp();
+
+  return (
+    <div className="relative min-h-screen bg-slate-100">
+      {isMobile && isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-20" 
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
+      <div className={`transform ${isMobile ? (isSidebarOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'}`}>
+        <Sidebar />
+      </div>
+      <div className={`transition-all duration-300 ease-in-out ${isMobile ? 'ml-0' : 'ml-64'}`}>
+        {isMobile && (
+          <header className="sticky top-0 bg-white/80 backdrop-blur-lg shadow-sm z-10 p-4 flex items-center justify-between">
+             <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg grid place-items-center bg-gradient-to-br from-brand to-cyan-400 text-white font-bold text-sm">
+                  PP
+                </div>
+                <span className="font-bold text-md text-slate-800">Aire Patricia Pilar</span>
+              </div>
+            <button onClick={() => setSidebarOpen(true)} className="text-slate-600 hover:text-slate-900">
+              <MenuIcon />
+            </button>
+          </header>
+        )}
+        <div className="w-full">
+          {children}
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // FIX: Refactored App to use react-router-dom v6/v7 components like Routes and the `element` prop on Route.
 function App() {
   const [showNotificationBanner, setShowNotificationBanner] = useState(false);
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   useEffect(() => {
     if ('Notification' in window) {
@@ -801,6 +868,12 @@ function App() {
       }
     }
   }, []);
+  
+  useEffect(() => {
+    if (!isMobile) {
+      setSidebarOpen(false);
+    }
+  }, [isMobile]);
 
   const handleAllowNotifications = () => {
     Notification.requestPermission().then(permission => {
@@ -816,23 +889,26 @@ function App() {
   };
 
   return (
-    <ReactRouterDOM.HashRouter>
-      <Layout>
-        <ReactRouterDOM.Routes>
-          <ReactRouterDOM.Route path="/" element={<DashboardPage />} />
-          <ReactRouterDOM.Route path="/sensors" element={<SensorsPage />} />
-          <ReactRouterDOM.Route path="/alerts" element={<AlertsPage />} />
-          <ReactRouterDOM.Route path="/history" element={<HistoryPage />} />
-        </ReactRouterDOM.Routes>
-      </Layout>
-      {showNotificationBanner && (
-        <NotificationBanner
-          onAllow={handleAllowNotifications}
-          onBlock={handleBlockNotifications}
-        />
-      )}
-    </ReactRouterDOM.HashRouter>
+    <AppContext.Provider value={{ isSidebarOpen, setSidebarOpen, isMobile }}>
+      <ReactRouterDOM.HashRouter>
+        <Layout>
+          <ReactRouterDOM.Routes>
+            <ReactRouterDOM.Route path="/" element={<DashboardPage />} />
+            <ReactRouterDOM.Route path="/sensors" element={<SensorsPage />} />
+            <ReactRouterDOM.Route path="/alerts" element={<AlertsPage />} />
+            <ReactRouterDOM.Route path="/history" element={<HistoryPage />} />
+          </ReactRouterDOM.Routes>
+        </Layout>
+        {showNotificationBanner && (
+          <NotificationBanner
+            onAllow={handleAllowNotifications}
+            onBlock={handleBlockNotifications}
+          />
+        )}
+      </ReactRouterDOM.HashRouter>
+    </AppContext.Provider>
   );
 }
+
 
 export default App;
