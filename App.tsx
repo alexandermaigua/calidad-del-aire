@@ -359,7 +359,7 @@ const DashboardPage: React.FC = () => {
         </ul>
       </div>
 
-      <Gauge value={latestReadings.co2} max={2000} label="Calidad del aire" unit="ppm" />
+      <Gauge value={latestReadings.glp} max={2000} label="Gas Licuado de Petróleo (GLP)" unit="ppm" />
       <Gauge value={latestReadings.o3} max={500} label="Ozono (O₃)" unit="ppb" />
       <Gauge value={latestReadings.co} max={150} label="Monóxido (CO)" unit="ppm" />
       <Gauge value={latestReadings.pm25} max={100} label="PM₂.₅" unit="µg/m³" />
@@ -506,21 +506,24 @@ const AlertsPage = () => {
 
 
 // --- SENSORS PAGE ---
-const SensorCard: React.FC<{ name: string, description: string}> = ({ name, description}) => (
-    <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12">
+const SensorCard: React.FC<{ name: string, description: string, image: string }> = ({ name, description, image }) => (
+    <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12 flex flex-col sm:flex-row items-center gap-6">
+        <div className="w-32 h-32 flex-shrink-0">
+            <img src={image} alt={`Imagen del sensor ${name}`} className="w-full h-full object-cover rounded-lg border border-slate-200" />
+        </div>
         <div>
-            <h3 className="text-xl font-bold text-slate-800 mb-1">{name}</h3>
-            <p className="text-slate-600">{description}</p>
+            <h3 className="text-xl font-bold text-slate-800 mb-1 text-center sm:text-left">{name}</h3>
+            <p className="text-slate-600 text-sm text-center sm:text-left">{description}</p>
         </div>
     </div>
 );
 
 const SENSORS_LIST = [
-    { name: 'MQ-7 (Sensor de Monóxido de Carbono)', description: 'El MQ-7 es un sensor semiconductor diseñado para detectar monóxido de carbono (CO). Utiliza óxido de estaño (SnO2) en un tubo calentado que modifica su resistencia eléctrica en presencia de CO, haciéndolo ideal para detección rápida y económica de este gas peligroso, inodoro y tóxico. El sensor tiene una salida analógica proporcional a la concentración de CO y una salida digital mediante comparador para niveles umbral. Es ampliamente usado en aplicaciones domésticas y industriales para seguridad ambiental.' },
-    { name: 'MQ-131 (Sensor de Ozono O3)', description: 'El MQ-131 detecta ozono (O3) en rangos típicos de 10 a 1000 ppm. Es un sensor basado en óxido de estaño que modula su resistencia conforme varían concentraciones de ozono, con alta sensibilidad en entornos industriales y urbanos. Su uso incluye monitoreo ambiental para calidad del aire, ayudando a detectar contaminantes oxidantes peligrosos.' },
-    { name: 'MQ-135 (Sensor de Calidad del Aire)', description: 'El MQ-135 es un sensor polivalente para detectar gases nocivos y contaminantes en aire como NH3, NOx, alcohol, benceno, y humo. También se usa para medir calidad del aire en interiores y exteriores. Opera mediante variaciones en resistencia de un semiconductor de óxido de estaño según la concentración de gases. Utilizado en sistemas de monitoreo ambiental para advertencias tempranas.' },
-    { name: 'BME280 (Sensor Ambiental Digital)', description: 'El BME280 es un sensor ambiental digital que mide humedad relativa, presión barométrica y temperatura con alta precisión. Basado en tecnología MEMS y con interfaces I2C y SPI, es compacto y consume poca energía, ideal para dispositivos portátiles, domótica, estaciones climáticas y sistemas IoT. Ofrece modos de operación configurables para balancear precisión y consumo.' },
-    { name: 'DSM501A (Sensor de Polvo/Partículas)', description: 'DSM501A es un sensor óptico para detectar partículas de polvo y calidad del aire. Utiliza un LED infrarrojo y un fotodiodo para medir la concentración de polvo en suspensión mediante dispersión de luz. Proporciona una salida digital proporcional a la densidad de partículas, útil en sistemas de monitoreo de contaminación ambiental y sistemas HVAC.' },
+    { name: 'MQ-7 (Sensor de Monóxido de Carbono)', description: 'El MQ-7 es un sensor semiconductor diseñado para detectar monóxido de carbono (CO). Utiliza óxido de estaño (SnO2) en un tubo calentado que modifica su resistencia eléctrica en presencia de CO, haciéndolo ideal para detección rápida y económica de este gas peligroso, inodoro y tóxico. El sensor tiene una salida analógica proporcional a la concentración de CO y una salida digital mediante comparador para niveles umbral. Es ampliamente usado en aplicaciones domésticas y industriales para seguridad ambiental.', image: '/imagenes/MQ7.jpg' },
+    { name: 'MQ-131 (Sensor de Ozono O3)', description: 'El MQ-131 detecta ozono (O3) en rangos típicos de 10 a 1000 ppm. Es un sensor basado en óxido de estaño que modula su resistencia conforme varían concentraciones de ozono, con alta sensibilidad en entornos industriales y urbanos. Su uso incluye monitoreo ambiental para calidad del aire, ayudando a detectar contaminantes oxidantes peligrosos.', image: '/imagenes/MQ131.jpg' },
+    { name: 'MQ-5 (Sensor de Glp)', description: 'El MQ-5 es un sensor semiconductor diseñado para la detección de gases inflamables como gas natural, gas licuado de petróleo (GLP), hidrógeno y vapores de alcohol. Su funcionamiento se basa en un material sensible cuya resistencia eléctrica varía ante la presencia de estos gases, generando una señal analógica proporcional a su concentración. Es ampliamente utilizado en sistemas de monitoreo y seguridad para la prevención de fugas y la detección temprana de gases combustibles en el ambiente.', image: '/imagenes/MQ135.jpg' },
+    { name: 'BME280 (Sensor Ambiental Digital)', description: 'El BME280 es un sensor ambiental digital que mide humedad relativa, presión barométrica y temperatura con alta precisión. Basado en tecnología MEMS y con interfaces I2C y SPI, es compacto y consume poca energía, ideal para dispositivos portátiles, domótica, estaciones climáticas y sistemas IoT. Ofrece modos de operación configurables para balancear precisión y consumo.', image: '/imagenes/BME280.jpg' },
+    { name: 'DSM501A (Sensor de Polvo/Partículas)', description: 'DSM501A es un sensor óptico para detectar partículas de polvo y calidad del aire. Utiliza un LED infrarrojo y un fotodiodo para medir la concentración de polvo en suspensión mediante dispersión de luz. Proporciona una salida digital proporcional a la densidad de partículas, útil en sistemas de monitoreo de contaminación ambiental y sistemas HVAC.', image: '/imagenes/DSM501A.jpg' },
 ];
 
 const SensorsPage = () => (
@@ -537,7 +540,7 @@ const VARIABLE_OPTIONS = [
   { key: 'co', path: 'gases.co_ppm', label: 'Monóxido (CO)', unit: 'ppm' },
   { key: 'o3', path: 'gases.o3_ppm', label: 'Ozono (O₃)', unit: 'ppb' },
   { key: 'pm25', path: 'particulates.pm25_mgm3', label: 'PM₂.₅', unit: 'µg/m³' },
-  { key: 'co2', path: 'gases.air_quality_ppm', label: 'Calidad del aire (NH3/CO2)', unit: 'ppm' },
+  { key: 'glp', path: 'gases.lpg', label: 'Gas Licuado de Petróleo (GLP)', unit: 'ppm' },
   { key: 'temperature', path: 'environment.temperature', label: 'Temperatura', unit: '°C' },
   { key: 'humidity', path: 'environment.humidity', label: 'Humedad', unit: '%' },
   { key: 'pressure', path: 'environment.pressure', label: 'Presión', unit: 'hPa' },
