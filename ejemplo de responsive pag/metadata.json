@@ -1,0 +1,5 @@
+{
+  "name": "Air Quality Monitoring Dashboard4",
+  "description": "A real-time dashboard to monitor air quality data from various sensors, connected to a Firebase Realtime Database. It displays the current Air Quality Index (AQI), pollutant levels, weather conditions, and logs alerts when thresholds are exceeded.",
+  "requestFramePermissions": []
+}
