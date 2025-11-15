@@ -763,7 +763,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         aria-hidden="true"
       ></div>
       <aside className={`fixed top-0 left-0 bottom-0 w-64 bg-slate-800 dark:bg-slate-900 text-white p-4 flex flex-col z-20 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex-grow">
+        <div>
           <div className="flex items-center justify-between p-2 mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl grid place-items-center bg-gradient-to-br from-brand to-cyan-400 text-white font-bold text-lg">
@@ -782,7 +782,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             <ReactRouterDOM.NavLink to="/history" onClick={closeSidebar} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><HistoryIcon /><span>Histórico</span></ReactRouterDOM.NavLink>
           </nav>
         </div>
-        <div className="flex items-center justify-between p-2">
+        <div className="mt-auto flex items-center justify-between p-2">
             <div className="flex items-center gap-3 bg-slate-900/50 dark:bg-slate-800/50 rounded-lg p-2">
               <img src="https://picsum.photos/seed/user/40/40" alt="User" className="w-10 h-10 rounded-full" />
               <div>
