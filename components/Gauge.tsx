@@ -38,16 +38,16 @@ export const Gauge: React.FC<GaugeProps> = ({ value, max, label, unit }) => {
       <h4 className="m-0 mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">{label}</h4>
       <svg className="w-full h-auto" viewBox="0 0 120 70">
         <path className="fill-none stroke-slate-200 dark:stroke-slate-600" strokeWidth="10" strokeLinecap="round" d="M10,60 A50,50 0 1 1 110,60" />
-        <path 
-          className={`fill-none ${color} transition-all duration-700 ease-out`}
-          strokeWidth="10" 
-          strokeLinecap="round" 
-          strokeDasharray="157" 
-          strokeDashoffset={offset} 
-          d="M10,60 A50,50 0 1 1 110,60" 
-        />
-
-      </svg>
+                <path
+                  className={`fill-none ${color} transition-all duration-700 ease-out`}
+                  strokeWidth="10"
+                  strokeLinecap="round"
+                  strokeDasharray="157"
+                  strokeDashoffset={offset}
+                  d="M10,60 A50,50 0 1 1 110,60"
+                />
+                <circle cx="10" cy="60" r="4" className="fill-green-500" />
+              </svg>
       <div className="mt-1.5 text-center font-bold text-lg text-slate-800 dark:text-white">
         <span>{isNaN(value) ? '--' : value.toFixed(2)}</span>
         <span className="text-sm font-medium text-slate-500 ml-1 dark:text-slate-400">{unit}</span>
