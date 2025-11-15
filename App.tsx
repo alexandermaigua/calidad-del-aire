@@ -13,7 +13,6 @@ import { DashboardIcon, SensorIcon, AlertIcon, HistoryIcon, MenuIcon, CloseIcon 
 import { Gauge } from './components/Gauge';
 import { AqiChart } from './components/AqiChart';
 import { NotificationBanner } from './components/NotificationBanner';
-import { ThemeToggle } from './components/ThemeToggle';
 
 // --- CONSTANTS & HELPERS ---
 const POLLUTANT_THRESH = { pm25: { warn: 35.5, bad: 55.5 }, o3: { warn: 125, bad: 200 } };
@@ -21,12 +20,12 @@ const AQI_LEVELS = ['Bueno', 'Moderado', 'Sensibles', 'Malo', 'Muy Malo', 'Pelig
 const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max);
 
 const getAqiLevel = (v: number): AqiLevel => {
-  if (v <= 50) return { text: 'Bueno', cls: 'good', className: 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-200 dark:border-green-700' };
-  if (v <= 100) return { text: 'Moderado', cls: 'mod', className: 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700' };
-  if (v <= 150) return { text: 'Sensibles', cls: 'warn', className: 'bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900 dark:text-orange-200 dark:border-orange-700' };
-  if (v <= 200) return { text: 'Malo', cls: 'bad', className: 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900 dark:text-red-200 dark:border-red-700' };
-  if (v <= 300) return { text: 'Muy Malo', cls: 'bad', className: 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700' };
-  return { text: 'Peligroso', cls: 'bad', className: 'bg-maroon-100 text-maroon-800 border-maroon-300 dark:bg-maroon-900 dark:text-maroon-200 dark:border-maroon-700' };
+  if (v <= 50) return { text: 'Bueno', cls: 'good', className: 'bg-green-100 text-green-800 border-green-300' };
+  if (v <= 100) return { text: 'Moderado', cls: 'mod', className: 'bg-yellow-100 text-yellow-800 border-yellow-300' };
+  if (v <= 150) return { text: 'Sensibles', cls: 'warn', className: 'bg-orange-100 text-orange-800 border-orange-300' };
+  if (v <= 200) return { text: 'Malo', cls: 'bad', className: 'bg-red-100 text-red-800 border-red-300' };
+  if (v <= 300) return { text: 'Muy Malo', cls: 'bad', className: 'bg-purple-100 text-purple-800 border-purple-300' };
+  return { text: 'Peligroso', cls: 'bad', className: 'bg-maroon-100 text-maroon-800 border-maroon-300' };
 };
 
 // --- AQI Calculation based on EPA AQI Standard 2018 ---
@@ -324,7 +323,7 @@ const DashboardPage: React.FC = () => {
     });
   }, [latestReadings, logAlert]);
 
-  if (loading) return <div className="p-8 text-center text-slate-500 dark:text-slate-400">Waiting for live sensor data...</div>;
+  if (loading) return <div className="p-8 text-center text-slate-500">Waiting for live sensor data...</div>;
   if (!latestReadings || !weather) return <div className="p-8 text-center text-red-500">Could not load sensor data. Check device connection.</div>;
 
   const aqiInfo = getAqiLevel(latestReadings.aqi);
@@ -332,31 +331,31 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className="grid grid-cols-12 gap-4">
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg rounded-2xl p-4 flex flex-col justify-between col-span-12 lg:col-span-4">
+      <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 flex flex-col justify-between col-span-12 lg:col-span-4">
         <div>
-            <h3 className="font-bold text-slate-800 dark:text-slate-200">Índice AQI (Calculado)</h3>
+            <h3 className="font-bold text-slate-800">Índice AQI (Calculado)</h3>
             <div className="text-6xl font-extrabold bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text">{latestReadings.aqi}</div>
         </div>
         <div className={`text-sm font-bold px-3 py-1 rounded-full self-start ${aqiInfo.className}`}>{aqiInfo.text}</div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg rounded-2xl p-4 col-span-12 lg:col-span-8">
+      <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12 lg:col-span-8">
         <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
             <div className="text-5xl">⛅</div>
             <div className="flex-grow">
-                <div className="text-4xl font-bold text-slate-800 dark:text-slate-200">{weather.tempC.toFixed(1)}°C</div>
+                <div className="text-4xl font-bold text-slate-800">{weather.tempC.toFixed(1)}°C</div>
             </div>
         </div>
         <div className="grid grid-cols-[auto_1fr_auto] gap-2 items-center my-2 text-sm">
-            <div className="dark:text-slate-200">AQI:</div>
-            <div className="h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div>AQI:</div>
+            <div className="h-2.5 bg-slate-200 rounded-full overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-green-400 via-yellow-400 to-red-500" style={{ width: `${clamp(weather.aqi, 0, 300) / 3}%`}}></div>
             </div>
-            <div className="font-bold dark:text-slate-200">{weather.aqi}</div>
+            <div className="font-bold">{weather.aqi}</div>
         </div>
-        <ul className="text-xs text-slate-600 dark:text-slate-400 space-y-1 mt-2">
-            <li>Humedad: <strong className="text-slate-800 dark:text-slate-200">{weather.humidity.toFixed(2)}%</strong></li>
-            <li>Presión: <strong className="text-slate-800 dark:text-slate-200">{weather.pressure}</strong></li>
+        <ul className="text-xs text-slate-600 space-y-1 mt-2">
+            <li>Humedad: <strong className="text-slate-800">{weather.humidity.toFixed(2)}%</strong></li>
+            <li>Presión: <strong className="text-slate-800">{weather.pressure}</strong></li>
         </ul>
       </div>
 
@@ -365,17 +364,17 @@ const DashboardPage: React.FC = () => {
       <Gauge value={latestReadings.co} max={150} label="Monóxido (CO)" unit="ppm" />
       <Gauge value={latestReadings.pm25} max={100} label="PM₂.₅" unit="µg/m³" />
 
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg rounded-2xl p-4 col-span-12">
+      <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-8 gap-y-4">
           <div>
             <div className="flex justify-between items-baseline mb-2">
-                <h3 className="font-bold text-slate-800 dark:text-slate-200">Calidad del Aire – AQI (Últimas lecturas)</h3>
-                <small className="text-slate-500 dark:text-slate-400">AQI (0–500)</small>
+                <h3 className="font-bold text-slate-800">Calidad del Aire – AQI (Últimas lecturas)</h3>
+                <small className="text-slate-500">AQI (0–500)</small>
             </div>
             <AqiChart data={history} />
           </div>
           <div className="flex flex-col justify-center">
-             <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-2">Conceptos básicos de AQI</h3>
+             <h3 className="font-bold text-slate-800 mb-2">Conceptos básicos de AQI</h3>
              <div className={`p-4 rounded-lg shadow-inner ${aqiDetails.cardClassName}`}>
                 <div className="flex justify-between items-center mb-2">
                     <span className="font-bold text-lg">{aqiDetails.concernLevel}</span>
@@ -429,37 +428,37 @@ const AlertsPage = () => {
     };
 
     const pillClasses: { [key: string]: string } = {
-      good: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-200 dark:border-green-700',
-      mod: 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700',
-      warn: 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900 dark:text-orange-200 dark:border-orange-700',
-      bad: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900 dark:text-red-200 dark:border-red-700',
+      good: 'bg-green-100 text-green-800 border-green-200',
+      mod: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      warn: 'bg-orange-100 text-orange-800 border-orange-200',
+      bad: 'bg-red-100 text-red-800 border-red-200',
     };
 
     return (
         <>
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4">
-                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Alerts Log</h3>
+                <h3 className="text-xl font-bold text-slate-800">Alerts Log</h3>
                 <div className="flex flex-col sm:flex-row gap-2">
-                    <button onClick={exportToCsv} className="px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg font-semibold text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 transition">Export CSV</button>
+                    <button onClick={exportToCsv} className="px-4 py-2 bg-white border border-slate-300 rounded-lg font-semibold text-sm text-slate-700 hover:bg-slate-50 transition">Export CSV</button>
                     <button onClick={clearAlerts} className="px-4 py-2 bg-red-500 text-white rounded-lg font-semibold text-sm hover:bg-red-600 transition">Clear Log</button>
                 </div>
             </div>
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg rounded-2xl">
+            <div className="bg-white border border-slate-200 shadow-lg rounded-2xl">
               {/* Mobile Card View */}
               <div className="md:hidden">
                 {loading ? (
-                    <div className="text-center p-8 text-slate-500 dark:text-slate-400">Loading alerts...</div>
+                    <div className="text-center p-8 text-slate-500">Loading alerts...</div>
                 ) : alerts.length === 0 ? (
-                    <div className="text-center p-8 text-slate-500 dark:text-slate-400">No alerts recorded yet.</div>
+                    <div className="text-center p-8 text-slate-500">No alerts recorded yet.</div>
                 ) : (
-                  <div className="divide-y divide-slate-200 dark:divide-slate-700">
+                  <div className="divide-y divide-slate-200">
                     {alerts.map(alert => (
                       <div key={alert.id} className="p-4">
                         <div className="flex justify-between items-start gap-2 mb-1">
-                          <span className="font-semibold text-slate-800 dark:text-slate-200">{alert.message}</span>
+                          <span className="font-semibold text-slate-800">{alert.message}</span>
                           <span className={`flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold border ${pillClasses[alert.cls] || 'bg-slate-100 text-slate-800 border-slate-200'}`}>{alert.level}</span>
                         </div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400 flex justify-between items-center">
+                        <div className="text-xs text-slate-500 flex justify-between items-center">
                           <span>{new Date(alert.ts).toLocaleString()}</span>
                           <span className="font-mono">{alert.type}: <strong>{alert.value}</strong></span>
                         </div>
@@ -471,8 +470,8 @@ const AlertsPage = () => {
 
               {/* Desktop Table View */}
               <div className="overflow-x-auto hidden md:block">
-                  <table className="w-full text-sm text-left text-slate-500 dark:text-slate-400">
-                      <thead className="text-xs text-slate-700 uppercase bg-slate-50 dark:bg-slate-700 dark:text-slate-400">
+                  <table className="w-full text-sm text-left text-slate-500">
+                      <thead className="text-xs text-slate-700 uppercase bg-slate-50">
                           <tr>
                               <th scope="col" className="px-6 py-3">Date & Time</th>
                               <th scope="col" className="px-6 py-3">Type</th>
@@ -488,8 +487,8 @@ const AlertsPage = () => {
                               <tr><td colSpan={5} className="text-center p-8">No alerts recorded yet.</td></tr>
                           ) : (
                               alerts.map(alert => (
-                                  <tr key={alert.id} className="bg-white dark:bg-slate-800 border-b dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600">
-                                      <td className="px-6 py-4 font-medium text-slate-900 dark:text-white whitespace-nowrap">{new Date(alert.ts).toLocaleString()}</td>
+                                  <tr key={alert.id} className="bg-white border-b hover:bg-slate-50">
+                                      <td className="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">{new Date(alert.ts).toLocaleString()}</td>
                                       <td className="px-6 py-4">{alert.type}</td>
                                       <td className="px-6 py-4"><span className={`px-2 py-0.5 rounded-full font-semibold border ${pillClasses[alert.cls] || 'bg-slate-100 text-slate-800 border-slate-200'}`}>{alert.level}</span></td>
                                       <td className="px-6 py-4">{alert.value}</td>
@@ -508,13 +507,13 @@ const AlertsPage = () => {
 
 // --- SENSORS PAGE ---
 const SensorCard: React.FC<{ name: string, description: string, image: string }> = ({ name, description, image }) => (
-    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg rounded-2xl p-4 col-span-12 flex flex-col sm:flex-row items-center gap-6">
+    <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12 flex flex-col sm:flex-row items-center gap-6">
         <div className="w-32 h-32 flex-shrink-0">
-            <img src={image} alt={`Imagen del sensor ${name}`} className="w-full h-full object-cover rounded-lg border border-slate-200 dark:border-slate-700" />
+            <img src={image} alt={`Imagen del sensor ${name}`} className="w-full h-full object-cover rounded-lg border border-slate-200" />
         </div>
         <div>
-            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-1 text-center sm:text-left">{name}</h3>
-            <p className="text-slate-600 dark:text-slate-400 text-sm text-center sm:text-left">{description}</p>
+            <h3 className="text-xl font-bold text-slate-800 mb-1 text-center sm:text-left">{name}</h3>
+            <p className="text-slate-600 text-sm text-center sm:text-left">{description}</p>
         </div>
     </div>
 );
@@ -529,8 +528,8 @@ const SENSORS_LIST = [
 
 const SensorsPage = () => (
     <div className="grid grid-cols-12 gap-4">
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg rounded-2xl p-4 col-span-12">
-            <p className="text-slate-600 dark:text-slate-400">El sistema de monitoreo de calidad del aire en la parroquia Patricia Pilar integra sensores de gases, material particulado y variables ambientales. La combinación de estos dispositivos permite generar indicadores como el AQI y brindar soporte a decisiones de salud y ambiente.</p>
+        <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 col-span-12">
+            <p className="text-slate-600">El sistema de monitoreo de calidad del aire en la parroquia Patricia Pilar integra sensores de gases, material particulado y variables ambientales. La combinación de estos dispositivos permite generar indicadores como el AQI y brindar soporte a decisiones de salud y ambiente.</p>
         </div>
         {SENSORS_LIST.map(sensor => <SensorCard key={sensor.name} name={sensor.name} description={sensor.description} image={sensor.image} />)}
     </div>
@@ -683,29 +682,29 @@ const HistoryPage = () => {
 
     return (
          <>
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg rounded-2xl p-4 mb-4">
+            <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 mb-4">
                 <div className="flex flex-col sm:flex-row flex-wrap items-end gap-4">
                     <div className="flex-grow w-full sm:w-auto min-w-[200px]">
-                        <label htmlFor="variable-select" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Variable</label>
+                        <label htmlFor="variable-select" className="block text-sm font-medium text-slate-700 mb-1">Variable</label>
                         <select 
                             id="variable-select" 
                             value={selectedVariable}
                             onChange={(e) => setSelectedVariable(e.target.value)}
-                            className="w-full px-3 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-800 focus:ring-brand"
+                            className="w-full px-3 py-2 bg-slate-800 text-white border border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-brand"
                         >
                             {VARIABLE_OPTIONS.map(option => (
-                                <option key={option.key} value={option.key}>{option.label}</option>
+                                <option key={option.key} value={option.key} className="bg-slate-800 text-white">{option.label}</option>
                             ))}
                         </select>
                     </div>
                     <div className="flex-grow w-full sm:w-auto min-w-[150px]">
-                        <label htmlFor="date-picker" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Fecha</label>
+                        <label htmlFor="date-picker" className="block text-sm font-medium text-slate-700 mb-1">Fecha</label>
                         <input 
                             type="date" 
                             id="date-picker"
                             value={selectedDate}
                             onChange={(e) => setSelectedDate(e.target.value)}
-                            className="w-full px-3 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-800 focus:ring-brand"
+                            className="w-full px-3 py-2 bg-slate-800 text-white border border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-brand"
                             style={{ colorScheme: 'dark' }}
                         />
                     </div>
@@ -720,7 +719,7 @@ const HistoryPage = () => {
                         <button
                             onClick={exportHistoryToCsv}
                             disabled={loading || chartData.length === 0}
-                            className="px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md font-semibold text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 transition disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed"
+                            className="px-4 py-2 bg-white border border-slate-300 rounded-md font-semibold text-sm text-slate-700 hover:bg-slate-50 transition disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed"
                         >
                             Exportar CSV
                         </button>
@@ -728,13 +727,13 @@ const HistoryPage = () => {
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg rounded-2xl p-4 min-h-[468px] flex items-center justify-center">
+            <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 min-h-[468px] flex items-center justify-center">
                 {loading ? (
-                    <p className="text-slate-500 dark:text-slate-400">Cargando datos del gráfico...</p>
+                    <p className="text-slate-500">Cargando datos del gráfico...</p>
                 ) : chartData.length > 0 ? (
                     <HistoryChart data={chartData} variable={{label: currentVariableInfo.label, unit: currentVariableInfo.unit}} />
                 ) : (
-                    <p className="text-slate-500 dark:text-slate-400">{message}</p>
+                    <p className="text-slate-500">{message}</p>
                 )}
             </div>
         </>
@@ -742,8 +741,6 @@ const HistoryPage = () => {
 };
 
 
-
-import { ThemeToggle } from './components/ThemeToggle';
 // --- LAYOUT & APP ---
 interface SidebarProps {
   isOpen: boolean;
@@ -762,35 +759,30 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         onClick={closeSidebar}
         aria-hidden="true"
       ></div>
-      <aside className={`fixed top-0 left-0 bottom-0 w-64 bg-slate-800 dark:bg-slate-900 text-white p-4 flex flex-col z-20 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div>
-          <div className="flex items-center justify-between p-2 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl grid place-items-center bg-gradient-to-br from-brand to-cyan-400 text-white font-bold text-lg">
-                PP
-              </div>
-              <span className="font-bold text-lg">Aire Patricia Pilar</span>
+      <aside className={`fixed top-0 left-0 bottom-0 w-64 bg-slate-800 text-white p-4 flex-flex-col z-20 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex items-center justify-between p-2 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl grid place-items-center bg-gradient-to-br from-brand to-cyan-400 text-white font-bold text-lg">
+              PP
             </div>
-            <button onClick={closeSidebar} className="lg:hidden p-1 text-slate-400 hover:text-white">
-              <CloseIcon />
-            </button>
+            <span className="font-bold text-lg">Aire Patricia Pilar</span>
           </div>
-          <nav className="flex flex-col gap-1">
-            <ReactRouterDOM.NavLink to="/" end onClick={closeSidebar} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><DashboardIcon /><span>Monitoreo</span></ReactRouterDOM.NavLink>
-            <ReactRouterDOM.NavLink to="/sensors" onClick={closeSidebar} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><SensorIcon /><span>Sensores</span></ReactRouterDOM.NavLink>
-            <ReactRouterDOM.NavLink to="/alerts" onClick={closeSidebar} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><AlertIcon /><span>Alertas</span></ReactRouterDOM.NavLink>
-            <ReactRouterDOM.NavLink to="/history" onClick={closeSidebar} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><HistoryIcon /><span>Histórico</span></ReactRouterDOM.NavLink>
-          </nav>
+          <button onClick={closeSidebar} className="lg:hidden p-1 text-slate-400 hover:text-white">
+            <CloseIcon />
+          </button>
         </div>
-        <div className="mt-auto flex items-center justify-between p-2">
-            <div className="flex items-center gap-3 bg-slate-900/50 dark:bg-slate-800/50 rounded-lg p-2">
-              <img src="https://picsum.photos/seed/user/40/40" alt="User" className="w-10 h-10 rounded-full" />
-              <div>
-                  <div className="font-semibold text-white">Alexander Maigua</div>
-                  <div className="text-xs text-slate-400">Admin</div>
-              </div>
+        <nav className="flex flex-col gap-1">
+          <ReactRouterDOM.NavLink to="/" end onClick={closeSidebar} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><DashboardIcon /><span>Monitoreo</span></ReactRouterDOM.NavLink>
+          <ReactRouterDOM.NavLink to="/sensors" onClick={closeSidebar} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><SensorIcon /><span>Sensores</span></ReactRouterDOM.NavLink>
+          <ReactRouterDOM.NavLink to="/alerts" onClick={closeSidebar} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><AlertIcon /><span>Alertas</span></ReactRouterDOM.NavLink>
+          <ReactRouterDOM.NavLink to="/history" onClick={closeSidebar} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><HistoryIcon /><span>Histórico</span></ReactRouterDOM.NavLink>
+        </nav>
+        <div className="mt-auto p-3 flex items-center gap-3 bg-slate-900/50 rounded-lg">
+            <img src="https://picsum.photos/seed/user/40/40" alt="User" className="w-10 h-10 rounded-full" />
+            <div>
+                <div className="font-semibold text-white">Alexander Maigua</div>
+                <div className="text-xs text-slate-400">Admin</div>
             </div>
-            <ThemeToggle />
         </div>
       </aside>
     </>
@@ -803,11 +795,11 @@ interface HeaderProps {
 }
 const Header: React.FC<HeaderProps> = ({ title, onMenuClick }) => {
     return (
-        <header className="sticky top-0 bg-slate-100/80 dark:bg-slate-900/80 backdrop-blur-md z-5 p-4 border-b border-slate-200 dark:border-slate-700 flex items-center h-16">
-            <button onClick={onMenuClick} className="lg:hidden mr-4 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white" aria-label="Open menu">
+        <header className="sticky top-0 bg-slate-100/80 backdrop-blur-md z-5 p-4 border-b border-slate-200 flex items-center h-16">
+            <button onClick={onMenuClick} className="lg:hidden mr-4 text-slate-600 hover:text-slate-900" aria-label="Open menu">
                 <MenuIcon />
             </button>
-            <h1 className="text-xl font-bold text-slate-800 dark:text-slate-200">{title}</h1>
+            <h1 className="text-xl font-bold text-slate-800">{title}</h1>
         </header>
     );
 };
@@ -833,7 +825,7 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
     return (
         <div className="flex">
             <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
-            <div className="flex-1 lg:ml-64 w-full min-h-screen bg-slate-100 dark:bg-slate-900">
+            <div className="flex-1 lg:ml-64 w-full min-h-screen bg-slate-100">
                 <Header title={getPageTitle(location.pathname)} onMenuClick={() => setSidebarOpen(true)} />
                 <main className="p-4">{children}</main>
             </div>
@@ -843,18 +835,6 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
 
 function App() {
   const [showNotificationBanner, setShowNotificationBanner] = useState(false);
-
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then(registration => {
-          console.log('SW registered: ', registration);
-        }).catch(registrationError => {
-          console.log('SW registration failed: ', registrationError);
-        });
-      });
-    }
-  }, []);
 
   useEffect(() => {
     if ('Notification' in window) {

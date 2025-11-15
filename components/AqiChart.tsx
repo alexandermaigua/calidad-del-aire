@@ -1,6 +1,5 @@
 import React from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceArea } from 'recharts';
-import { useTheme } from './ThemeProvider';
+import { AreaChart, Area, Tooltip, ResponsiveContainer, YAxis, XAxis, CartesianGrid, ReferenceArea } from 'recharts';
 import { HistoricalData } from '../types';
 
 interface AqiChartProps {
@@ -8,9 +7,6 @@ interface AqiChartProps {
 }
 
 export const AqiChart: React.FC<AqiChartProps> = ({ data }) => {
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
-
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-full min-h-[250px] text-slate-500">
@@ -19,51 +15,39 @@ export const AqiChart: React.FC<AqiChartProps> = ({ data }) => {
     );
   }
 
-  const chartData = data.map(d => ({
-    name: new Date(d.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    aqi: d.aqi
-  }));
+  const chartData = data.map(d => ({ name: new Date(d.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), aqi: d.aqi }));
 
   const yAxisTicks = [0, 50, 100, 150, 200, 300, 500];
-
-  const tickColor = isDark ? '#94a3b8' : '#64748b'; // slate-400 / slate-600
-  const gridColor = isDark ? '#334155' : '#e0e0e0'; // slate-700 / gray-200
-  const tooltipBg = isDark ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.9)'; // slate-900 / white
-  const tooltipBorder = isDark ? '#475569' : '#e2e8f0'; // slate-600 / gray-300
-  const tooltipLabelColor = isDark ? '#f1f5f9' : '#1e293b'; // slate-50 / slate-800
-  const areaStrokeColor = isDark ? '#60a5fa' : '#2563eb'; // blue-400 / blue-600
-  const areaFillColor = isDark ? '#3b82f6' : '#2563eb'; // blue-500 / blue-600
-  const areaFillOpacity = isDark ? 0.2 : 0.4;
 
   return (
     <ResponsiveContainer width="100%" height={250}>
       <AreaChart data={chartData} margin={{ top: 5, right: 20, left: -15, bottom: 5 }}>
         <defs>
           <linearGradient id="aqiGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor={areaFillColor} stopOpacity={areaFillOpacity}/>
-            <stop offset="95%" stopColor={areaFillColor} stopOpacity={0}/>
+            <stop offset="5%" stopColor="#2563eb" stopOpacity={0.4}/>
+            <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
           </linearGradient>
         </defs>
 
-        <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
 
-        <XAxis dataKey="name" tick={{ fontSize: 12, fill: tickColor }} axisLine={{ stroke: gridColor }} tickLine={{ stroke: gridColor }} />
+        <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={{ stroke: '#cbd5e1' }} tickLine={{ stroke: '#cbd5e1' }} />
         <YAxis 
           domain={[0, (dataMax: number) => Math.max(dataMax + 25, 300)]}
           ticks={yAxisTicks}
-          tick={{ fontSize: 12, fill: tickColor }} 
-          axisLine={{ stroke: gridColor }} 
-          tickLine={{ stroke: gridColor }}
+          tick={{ fontSize: 12, fill: '#64748b' }} 
+          axisLine={{ stroke: '#cbd5e1' }} 
+          tickLine={{ stroke: '#cbd5e1' }}
         />
         
         <Tooltip
           contentStyle={{
-            backgroundColor: tooltipBg,
-            border: `1px solid ${tooltipBorder}`,
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            border: '1px solid #e2e8f0',
             borderRadius: '8px',
             boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
           }}
-          labelStyle={{ fontWeight: 'bold', color: tooltipLabelColor }}
+          labelStyle={{ fontWeight: 'bold', color: '#1e293b' }}
         />
 
         {/* Reference areas for AQI levels */}
@@ -77,12 +61,12 @@ export const AqiChart: React.FC<AqiChartProps> = ({ data }) => {
         <Area
           type="monotone"
           dataKey="aqi"
-          stroke={areaStrokeColor}
+          stroke="#2563eb"
           strokeWidth={2}
           fillOpacity={1}
           fill="url(#aqiGradient)"
-          dot={{ r: 2, fill: areaStrokeColor }}
-          activeDot={{ r: 5, stroke: isDark ? '#334155' : '#fff', strokeWidth: 2 }}
+          dot={{ r: 2, fill: '#2563eb' }}
+          activeDot={{ r: 5, stroke: '#fff', strokeWidth: 2 }}
         />
       </AreaChart>
     </ResponsiveContainer>
