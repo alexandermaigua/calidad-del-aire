@@ -170,33 +170,33 @@ const useRealtimeData = () => {
     const [loading, setLoading] = useState(true);
 
     const transformDeviceData = (data: DeviceData): { sensorData: SensorData, weatherData: WeatherData } => {
-        const pm25 = data.particulates?.pm25_mgm3 ?? 0;
+        const pm25 = Math.max(0, data.particulates?.pm25_mgm3 ?? 0);
         // The sensor reports o3 in ppb, but the firebase key is misnamed 'o3_ppm'.
         // The EPA calculation requires ppm, so we convert. 1 ppm = 1000 ppb.
-        const o3_ppb = data.gases?.o3_ppm ?? 0;
+        const o3_ppb = Math.max(0, data.gases?.o3_ppm ?? 0);
         const o3_ppm = o3_ppb / 1000;
-        const co_ppm = data.gases?.co_ppm ?? 0;
+        const co_ppm = Math.max(0, data.gases?.co_ppm ?? 0);
         
         const aqi = calculateOverallAqi(pm25, o3_ppm, co_ppm);
-        const tempC = data.environment?.temperature ?? 0;
+        const tempC = Math.max(0, data.environment?.temperature ?? 0);
 
         const sensorData: SensorData = {
             aqi: aqi,
-            co2: data.gases?.air_quality_ppm ?? 0,
+            co2: Math.max(0, data.gases?.air_quality_ppm ?? 0),
             o3: o3_ppb, // The gauge displays ppb
-            co: data.gases?.co_ppm ?? 0,
-            glp: data.gases?.lpg ?? 0,
-            naturalGas: data.gases?.natural_gas ?? 0,
-            pm1: data.particulates?.pm1_ugm3 ?? 0,
+            co: co_ppm,
+            glp: Math.max(0, data.gases?.lpg ?? 0),
+            naturalGas: Math.max(0, data.gases?.natural_gas ?? 0),
+            pm1: Math.max(0, data.particulates?.pm1_ugm3 ?? 0),
             pm25: pm25,
-            rh: data.environment?.humidity ?? 0,
+            rh: Math.max(0, data.environment?.humidity ?? 0),
             timestamp: new Date(data.timestamp).getTime(),
         };
 
         const weatherData: WeatherData = {
             tempC: tempC,
             aqi: aqi,
-            humidity: data.environment?.humidity ?? 0,
+            humidity: Math.max(0, data.environment?.humidity ?? 0),
             pressure: `${(data.environment?.pressure ?? 0).toFixed(1)} hPa`,
         };
         return { sensorData, weatherData };
