@@ -13,6 +13,8 @@ import { DashboardIcon, SensorIcon, AlertIcon, HistoryIcon, MenuIcon, CloseIcon 
 import { Gauge } from './components/Gauge';
 import { AqiChart } from './components/AqiChart';
 import { NotificationBanner } from './components/NotificationBanner';
+import { ThemeProvider } from './components/ThemeProvider';
+import { ThemeToggle } from './components/ThemeToggle';
 
 // --- CONSTANTS & HELPERS ---
 const POLLUTANT_THRESH = { pm25: { warn: 35.5, bad: 55.5 }, o3: { warn: 125, bad: 200 } };
@@ -759,7 +761,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         onClick={closeSidebar}
         aria-hidden="true"
       ></div>
-      <aside className={`fixed top-0 left-0 bottom-0 w-64 bg-slate-800 text-white p-4 flex-flex-col z-20 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed top-0 left-0 bottom-0 w-64 bg-slate-800 text-white p-4 flex flex-col z-20 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between p-2 mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl grid place-items-center bg-gradient-to-br from-brand to-cyan-400 text-white font-bold text-lg">
@@ -777,12 +779,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
           <ReactRouterDOM.NavLink to="/alerts" onClick={closeSidebar} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><AlertIcon /><span>Alertas</span></ReactRouterDOM.NavLink>
           <ReactRouterDOM.NavLink to="/history" onClick={closeSidebar} className={({isActive}) => isActive ? `${navLinkClass} ${activeNavLinkClass}`: navLinkClass}><HistoryIcon /><span>Histórico</span></ReactRouterDOM.NavLink>
         </nav>
-        <div className="mt-auto p-3 flex items-center gap-3 bg-slate-900/50 rounded-lg">
-            <img src="https://picsum.photos/seed/user/40/40" alt="User" className="w-10 h-10 rounded-full" />
-            <div>
-                <div className="font-semibold text-white">Alexander Maigua</div>
-                <div className="text-xs text-slate-400">Admin</div>
-            </div>
+        <div className="mt-auto">
+          <div className="p-3 flex items-center justify-between gap-3 bg-slate-900/50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <img src="https://picsum.photos/seed/user/40/40" alt="User" className="w-10 h-10 rounded-full" />
+                <div>
+                    <div className="font-semibold text-white">Alexander Maigua</div>
+                    <div className="text-xs text-slate-400">Admin</div>
+                </div>
+              </div>
+              <ThemeToggle />
+          </div>
         </div>
       </aside>
     </>
@@ -859,20 +866,22 @@ function App() {
 
   return (
     <ReactRouterDOM.HashRouter>
-      <Layout>
-        <ReactRouterDOM.Routes>
-          <ReactRouterDOM.Route path="/" element={<DashboardPage />} />
-          <ReactRouterDOM.Route path="/sensors" element={<SensorsPage />} />
-          <ReactRouterDOM.Route path="/alerts" element={<AlertsPage />} />
-          <ReactRouterDOM.Route path="/history" element={<HistoryPage />} />
-        </ReactRouterDOM.Routes>
-      </Layout>
-      {showNotificationBanner && (
-        <NotificationBanner
-          onAllow={handleAllowNotifications}
-          onBlock={handleBlockNotifications}
-        />
-      )}
+      <ThemeProvider>
+        <Layout>
+          <ReactRouterDOM.Routes>
+            <ReactRouterDOM.Route path="/" element={<DashboardPage />} />
+            <ReactRouterDOM.Route path="/sensors" element={<SensorsPage />} />
+            <ReactRouterDOM.Route path="/alerts" element={<AlertsPage />} />
+            <ReactRouterDOM.Route path="/history" element={<HistoryPage />} />
+          </ReactRouterDOM.Routes>
+        </Layout>
+        {showNotificationBanner && (
+          <NotificationBanner
+            onAllow={handleAllowNotifications}
+            onBlock={handleBlockNotifications}
+          />
+        )}
+      </ThemeProvider>
     </ReactRouterDOM.HashRouter>
   );
 }
