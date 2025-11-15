@@ -866,7 +866,7 @@ function App() {
 
   return (
     <ReactRouterDOM.HashRouter>
-      <ThemeProvider>
+      <ThemeProvider defaultTheme="light">
         <Layout>
           <ReactRouterDOM.Routes>
             <ReactRouterDOM.Route path="/" element={<DashboardPage />} />
