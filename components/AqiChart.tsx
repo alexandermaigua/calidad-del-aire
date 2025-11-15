@@ -1,15 +1,19 @@
 import React from 'react';
 import { AreaChart, Area, Tooltip, ResponsiveContainer, YAxis, XAxis, CartesianGrid, ReferenceArea } from 'recharts';
 import { HistoricalData } from '../types';
+import { useTheme } from './ThemeProvider';
 
 interface AqiChartProps {
   data: HistoricalData[];
 }
 
 export const AqiChart: React.FC<AqiChartProps> = ({ data }) => {
+  const { theme } = useTheme();
+  const isDarkMode = theme === 'dark';
+
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[250px] text-slate-500">
+      <div className="flex items-center justify-center h-full min-h-[250px] text-slate-500 dark:text-slate-400">
         Loading chart data...
       </div>
     );
@@ -29,25 +33,28 @@ export const AqiChart: React.FC<AqiChartProps> = ({ data }) => {
           </linearGradient>
         </defs>
 
-        <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+        <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#475569' : '#e0e0e0'} />
 
-        <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={{ stroke: '#cbd5e1' }} tickLine={{ stroke: '#cbd5e1' }} />
+        <XAxis dataKey="name" 
+            tick={{ fontSize: 12, fill: isDarkMode ? '#cbd5e1' : '#64748b' }} 
+            axisLine={{ stroke: isDarkMode ? '#475569' : '#cbd5e1' }} 
+            tickLine={{ stroke: isDarkMode ? '#475569' : '#cbd5e1' }} />
         <YAxis 
           domain={[0, (dataMax: number) => Math.max(dataMax + 25, 300)]}
           ticks={yAxisTicks}
-          tick={{ fontSize: 12, fill: '#64748b' }} 
-          axisLine={{ stroke: '#cbd5e1' }} 
-          tickLine={{ stroke: '#cbd5e1' }}
+          tick={{ fontSize: 12, fill: isDarkMode ? '#cbd5e1' : '#64748b' }} 
+          axisLine={{ stroke: isDarkMode ? '#475569' : '#cbd5e1' }} 
+          tickLine={{ stroke: isDarkMode ? '#475569' : '#cbd5e1' }}
         />
         
         <Tooltip
           contentStyle={{
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            border: '1px solid #e2e8f0',
+            backgroundColor: isDarkMode ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+            border: isDarkMode ? '1px solid #475569' : '1px solid #e2e8f0',
             borderRadius: '8px',
             boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
           }}
-          labelStyle={{ fontWeight: 'bold', color: '#1e293b' }}
+          labelStyle={{ fontWeight: 'bold', color: isDarkMode ? '#f8fafc' : '#1e293b' }}
         />
 
         {/* Reference areas for AQI levels */}
