@@ -63,9 +63,9 @@ export interface DeviceData {
     wifi_rssi: number;
   };
   gases: {
-    lpg: number;
-    lpg_raw: number;
-    lpg_status: string;
+    glp: number;
+    glp_raw: number;
+    glp_status: string;
     natural_gas: number;
     natural_gas_raw: number;
     natural_gas_status: string;
