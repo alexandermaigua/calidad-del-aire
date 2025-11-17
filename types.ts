@@ -4,7 +4,7 @@ export interface SensorData {
   co2: number;
   o3: number;
   co: number;
-  glp: number;
+  lpg_ppm: number;
   naturalGas: number;
   pm1: number;
   pm25: number;
@@ -63,9 +63,9 @@ export interface DeviceData {
     wifi_rssi: number;
   };
   gases: {
-    glp: number;
-    glp_raw: number;
-    glp_status: string;
+    lpg_ppm: number;
+    lpg_ppm_raw: number;
+    lpg_ppm_status: string;
     natural_gas: number;
     natural_gas_raw: number;
     natural_gas_status: string;

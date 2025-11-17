@@ -185,7 +185,7 @@ const useRealtimeData = () => {
             co2: Math.max(0, data.gases?.air_quality_ppm ?? 0),
             o3: o3_ppb, // The gauge displays ppb
             co: co_ppm,
-            glp: Math.max(0, data.gases?.glp ?? 0),
+            lpg_ppm: Math.max(0, data.gases?.lpg_ppm ?? 0),
             naturalGas: Math.max(0, data.gases?.natural_gas ?? 0),
             pm1: Math.max(0, data.particulates?.pm1_ugm3 ?? 0),
             pm25: pm25,
@@ -361,7 +361,7 @@ const DashboardPage: React.FC = () => {
         </ul>
       </div>
 
-      <Gauge value={latestReadings.glp} max={2000} label="Gas Licuado de Petróleo (GLP)" unit="ppm" />
+      <Gauge value={latestReadings.lpg_ppm} max={2000} label="Gas Licuado de Petróleo (GLP)" unit="ppm" />
       <Gauge value={latestReadings.o3} max={500} label="Ozono (O₃)" unit="ppb" />
       <Gauge value={latestReadings.co} max={150} label="Monóxido (CO)" unit="ppm" />
       <Gauge value={latestReadings.pm25} max={100} label="PM₂.₅" unit="µg/m³" />
@@ -542,7 +542,7 @@ const VARIABLE_OPTIONS = [
   { key: 'co', path: 'gases.co_ppm', label: 'Monóxido (CO)', unit: 'ppm' },
   { key: 'o3', path: 'gases.o3_ppm', label: 'Ozono (O₃)', unit: 'ppb' },
   { key: 'pm25', path: 'particulates.pm25_mgm3', label: 'PM₂.₅', unit: 'µg/m³' },
-  { key: 'glp', path: 'gases.glp', label: 'Gas Licuado de Petróleo (GLP)', unit: 'ppm' },
+  { key: 'glp', path: 'gases.lpg_ppm', label: 'Gas Licuado de Petróleo (GLP)', unit: 'ppm' },
   { key: 'temperature', path: 'environment.temperature', label: 'Temperatura', unit: '°C' },
   { key: 'humidity', path: 'environment.humidity', label: 'Humedad', unit: '%' },
   { key: 'pressure', path: 'environment.pressure', label: 'Presión', unit: 'hPa' },
