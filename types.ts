@@ -64,8 +64,8 @@ export interface DeviceData {
   };
   gases: {
     lpg_ppm: number;
-    lpg_ppm_raw: number;
-    lpg_ppm_status: string;
+    lpg_raw: number;
+    lpg_status: string;
     natural_gas: number;
     natural_gas_raw: number;
     natural_gas_status: string;
