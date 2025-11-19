@@ -821,7 +821,7 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
     const getPageTitle = (pathname: string) => {
         switch (pathname) {
             case '/': return 'Panel de Monitoreo';
-            case '/sensors': return 'Informacion de Sensores';
+            case '/sensors': return 'Información de Sensores';
             case '/alerts': return 'Registro de Alertas';
             case '/history': return 'Histórico de Datos';
             default: return 'Air Quality';
