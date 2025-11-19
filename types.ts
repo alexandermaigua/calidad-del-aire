@@ -17,6 +17,7 @@ export interface WeatherData {
   aqi: number;
   humidity: number;
   pressure: string;
+  altitude: number;
 }
 
 export interface AlertRecord {
@@ -55,6 +56,7 @@ export interface DeviceData {
     temperature: number;
     humidity: number;
     pressure: number;
+    altitude: number;
     bme280_status: string;
   };
   system: {

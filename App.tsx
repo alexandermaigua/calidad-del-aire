@@ -198,6 +198,7 @@ const useRealtimeData = () => {
             aqi: aqi,
             humidity: Math.max(0, data.environment?.humidity ?? 0),
             pressure: `${(data.environment?.pressure ?? 0).toFixed(1)} hPa`,
+            altitude: Math.max(0, data.environment?.altitude ?? 0),
         };
         return { sensorData, weatherData };
     };
@@ -348,16 +349,10 @@ const DashboardPage: React.FC = () => {
                 <div className="text-4xl font-bold text-slate-800 dark:text-white">{weather.tempC.toFixed(1)}°C</div>
             </div>
         </div>
-        <div className="grid grid-cols-[auto_1fr_auto] gap-2 items-center my-2 text-sm">
-            <div className="dark:text-slate-200">AQI:</div>
-            <div className="h-2.5 bg-slate-200 rounded-full overflow-hidden dark:bg-slate-700">
-                <div className="h-full bg-gradient-to-r from-green-400 via-yellow-400 to-red-500" style={{ width: `${clamp(weather.aqi, 0, 300) / 3}%`}}></div>
-            </div>
-            <div className="font-bold dark:text-white">{weather.aqi}</div>
-        </div>
         <ul className="text-xs text-slate-600 space-y-1 mt-2 dark:text-slate-400">
             <li>Humedad: <strong className="text-slate-800 dark:text-white">{weather.humidity.toFixed(2)}%</strong></li>
             <li>Presión: <strong className="text-slate-800 dark:text-white">{weather.pressure}</strong></li>
+            <li>Altitud: <strong className="text-slate-800 dark:text-white">{weather.altitude.toFixed(2)} m</strong></li>
         </ul>
       </div>
 
