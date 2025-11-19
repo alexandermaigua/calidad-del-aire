@@ -80,8 +80,6 @@ export const Gauge: React.FC<GaugeProps> = ({ value, max, label, unit }) => {
           cy={y}
           r="8"
           fill={colorValue}
-          stroke="#fff"
-          strokeWidth="3"
           style={{ transition: 'cx 0.1s ease, cy 0.1s ease' }}
         />
       </svg>
