@@ -41,7 +41,7 @@ export const Gauge: React.FC<GaugeProps> = ({ value, max, label, unit }) => {
                 <path
                   className={`fill-none ${color} transition-all duration-700 ease-out`}
                   strokeWidth="10"
-                  strokeLinecap="round"
+                  strokeLinecap={t <= 0.01 ? "butt" : "round"}
                   strokeDasharray="157"
                   strokeDashoffset={offset}
                   d="M10,60 A50,50 0 1 1 110,60"
