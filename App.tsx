@@ -170,7 +170,7 @@ const useRealtimeData = () => {
     const [loading, setLoading] = useState(true);
 
     const transformDeviceData = (data: DeviceData): { sensorData: SensorData, weatherData: WeatherData } => {
-        const pm25 = Math.max(0, data.particulates?.pm25_mgm3 ?? 0);
+        const pm25 = Math.max(0, data.particulates?.pm25_ugm3 ?? 0);
         // The sensor reports o3 in ppb, but the firebase key is misnamed 'o3_ppm'.
         // The EPA calculation requires ppm, so we convert. 1 ppm = 1000 ppb.
         const o3_ppb = Math.max(0, data.gases?.o3_ppm ?? 0);
@@ -255,7 +255,7 @@ const useRealtimeData = () => {
                       return {
                           timestamp: new Date(d.timestamp).getTime(),
                           aqi: calculateOverallAqi(
-                            d.particulates?.pm25_mgm3 ?? 0,
+                            d.particulates?.pm25_ugm3 ?? 0,
                             o3_ppm,
                             d.gases?.co_ppm ?? 0
                           )
@@ -541,7 +541,7 @@ const SensorsPage = () => (
 const VARIABLE_OPTIONS = [
   { key: 'co', path: 'gases.co_ppm', label: 'Monóxido (CO)', unit: 'ppm' },
   { key: 'o3', path: 'gases.o3_ppm', label: 'Ozono (O₃)', unit: 'ppb' },
-  { key: 'pm25', path: 'particulates.pm25_mgm3', label: 'PM₂.₅', unit: 'µg/m³' },
+  { key: 'pm25', path: 'particulates.pm25_ugm3', label: 'PM₂.₅', unit: 'µg/m³' },
   { key: 'glp', path: 'gases.lpg_ppm', label: 'Gas Licuado de Petróleo (GLP)', unit: 'ppm' },
   { key: 'temperature', path: 'environment.temperature', label: 'Temperatura', unit: '°C' },
   { key: 'humidity', path: 'environment.humidity', label: 'Humedad', unit: '%' },

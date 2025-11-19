@@ -81,7 +81,7 @@ export interface DeviceData {
   };
   particulates: {
     pm1_ugm3: number;
-    pm25_mgm3: number;
+    pm25_ugm3: number;
     pm1_ratio: number;
     pm25_ratio: number;
     status: string;
