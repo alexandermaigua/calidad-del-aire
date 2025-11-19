@@ -78,7 +78,7 @@ export const Gauge: React.FC<GaugeProps> = ({ value, max, label, unit }) => {
         <circle
           cx={x}
           cy={y}
-          r="8"
+          r="5"
           fill={colorValue}
           style={{ transition: 'cx 0.1s ease, cy 0.1s ease' }}
         />
