@@ -183,7 +183,7 @@ const useRealtimeData = () => {
         const sensorData: SensorData = {
             aqi: aqi,
             co2: Math.max(0, data.gases?.air_quality_ppm ?? 0),
-            o3: o3_ppb, // The gauge displays ppb
+            o3: o3_ppm, // The gauge displays ppm
             co: co_ppm,
             lpg_ppm: Math.max(0, data.gases?.lpg_ppm ?? 0),
             naturalGas: Math.max(0, data.gases?.natural_gas ?? 0),
@@ -357,7 +357,7 @@ const DashboardPage: React.FC = () => {
       </div>
 
       <Gauge value={latestReadings.lpg_ppm} max={2000} label="Gas Licuado de Petróleo (GLP)" unit="ppm" />
-      <Gauge value={latestReadings.o3} max={500} label="Ozono (O₃)" unit="ppb" />
+      <Gauge value={latestReadings.o3} max={1} label="Ozono (O₃)" unit="ppm" />
       <Gauge value={latestReadings.co} max={150} label="Monóxido (CO)" unit="ppm" />
       <Gauge value={latestReadings.pm25} max={100} label="PM₂.₅" unit="µg/m³" />
 
@@ -535,7 +535,7 @@ const SensorsPage = () => (
 // --- HISTORY PAGE ---
 const VARIABLE_OPTIONS = [
   { key: 'co', path: 'gases.co_ppm', label: 'Monóxido (CO)', unit: 'ppm' },
-  { key: 'o3', path: 'gases.o3_ppm', label: 'Ozono (O₃)', unit: 'ppb' },
+  { key: 'o3', path: 'gases.o3_ppm', label: 'Ozono (O₃)', unit: 'ppm' },
   { key: 'pm25', path: 'particulates.pm25_ugm3', label: 'PM₂.₅', unit: 'µg/m³' },
   { key: 'glp', path: 'gases.lpg_ppm', label: 'Gas Licuado de Petróleo (GLP)', unit: 'ppm' },
   { key: 'temperature', path: 'environment.temperature', label: 'Temperatura', unit: '°C' },
@@ -623,10 +623,14 @@ const HistoryPage = () => {
                 const processedData = Object.entries(data as Record<string, DeviceData>)
                     .map(([time, record]) => {
                         const fullTimestamp = `${selectedDate}T${time.replace(/-/g, ':')}`;
+                        let value = getNestedValue(record, variableInfo.path);
+                        if (variableInfo.key === 'o3' && value !== undefined) {
+                            value /= 1000;
+                        }
                         return {
                             time: time.substring(0, 5), // 'HH-MM' for chart label
                             fullTimestamp, // full timestamp for CSV
-                            value: getNestedValue(record, variableInfo.path)
+                            value: value
                         };
                     })
                     .filter(item => item.value !== undefined && !isNaN(item.value))
