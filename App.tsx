@@ -7,6 +7,7 @@ import 'firebase/compat/database';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
+import { Toaster, toast } from 'react-hot-toast';
 import { db } from './services/firebase';
 import { SensorData, WeatherData, AlertRecord, AqiLevel, HistoricalData, DeviceData } from './types';
 import { DashboardIcon, SensorIcon, AlertIcon, HistoryIcon, MenuIcon, CloseIcon } from './components/Icons';
@@ -17,7 +18,12 @@ import { ThemeProvider } from './components/ThemeProvider';
 import { ThemeToggle } from './components/ThemeToggle';
 
 // --- CONSTANTS & HELPERS ---
-const POLLUTANT_THRESH = { pm25: { warn: 35.5, bad: 55.5 }, o3: { warn: 125, bad: 200 } };
+const POLLUTANT_THRESH = { 
+  pm25: { warn: 35.5, bad: 55.5 }, 
+  o3: { warn: 0.07, bad: 0.1 },
+  co: { warn: 10, bad: 35 },
+  lpg_ppm: { warn: 1000, bad: 2000 }
+};
 const AQI_LEVELS = ['Bueno', 'Moderado', 'Sensibles', 'Malo', 'Muy Malo', 'Peligroso'];
 const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max);
 
@@ -286,7 +292,7 @@ const useRealtimeData = () => {
 const DashboardPage: React.FC = () => {
   const { latestReadings, weather, history, loading } = useRealtimeData();
   const lastAqiLevel = useRef<string | null>(null);
-  const lastPollutantFlags = useRef<{ [key: string]: boolean }>({ pm25: false, o3: false });
+  const lastPollutantFlags = useRef<{ [key: string]: boolean }>({ pm25: false, o3: false, co: false, lpg_ppm: false });
 
   const logAlert = useCallback((alertData: Omit<AlertRecord, 'id' | 'ts'>) => {
     const newAlertRef = db.ref('alerts').push();
@@ -296,6 +302,19 @@ const DashboardPage: React.FC = () => {
     });
   }, []);
 
+  const triggerToast = (message: string, level: 'good' | 'mod' | 'warn' | 'bad') => {
+    const styles = {
+        good: { icon: '✅', style: { background: '#34d399', color: 'white' } },
+        mod: { icon: '⚠️', style: { background: '#fbbf24', color: 'black' } },
+        warn: { icon: '🔥', style: { background: '#f97316', color: 'white' } },
+        bad: { icon: '☣️', style: { background: '#ef4444', color: 'white' } },
+    };
+    toast(message, {
+        duration: 4000,
+        ...styles[level],
+    });
+  };
+
   useEffect(() => {
     if (!latestReadings) return;
     
@@ -303,10 +322,10 @@ const DashboardPage: React.FC = () => {
     if (lastAqiLevel.current && lastAqiLevel.current !== currentAqi.text) {
       const prevIdx = AQI_LEVELS.indexOf(lastAqiLevel.current);
       const currIdx = AQI_LEVELS.indexOf(currentAqi.text);
-      if (currIdx > 1 && prevIdx <= 1) {
-        logAlert({ type: 'AQI', level: currentAqi.text, value: latestReadings.aqi, message: `AQI cambió a ${currentAqi.text}`, cls: currentAqi.cls });
-      } else if (currIdx <= 1 && prevIdx > 1) {
-        logAlert({ type: 'AQI', level: currentAqi.text, value: latestReadings.aqi, message: 'AQI volvió a niveles aceptables', cls: currentAqi.cls });
+      if (currIdx > prevIdx) {
+        const message = `La calidad del aire ha cambiado a: ${currentAqi.text}`;
+        logAlert({ type: 'AQI', level: currentAqi.text, value: latestReadings.aqi, message, cls: currentAqi.cls });
+        triggerToast(message, currentAqi.cls as any);
       }
     }
     lastAqiLevel.current = currentAqi.text;
@@ -315,12 +334,14 @@ const DashboardPage: React.FC = () => {
       const value = latestReadings[key as keyof SensorData] as number;
       if (value >= thresholds.warn) {
         if (!lastPollutantFlags.current[key]) {
-          const level = value >= thresholds.bad ? 'Malo' : 'Sensibles';
-          logAlert({ type: key.toUpperCase(), level, value, message: `${key.toUpperCase()} elevado (${value} µg/m³)`, cls: level === 'Malo' ? 'bad' : 'warn' });
+          const level = value >= thresholds.bad ? 'bad' : 'warn';
+          const unit = key === 'pm25' ? 'µg/m³' : 'ppm';
+          const message = `${key.toUpperCase()} en niveles elevados (${value.toFixed(2)} ${unit})`;
+          logAlert({ type: key.toUpperCase(), level, value, message, cls: level });
+          triggerToast(message, level);
           lastPollutantFlags.current[key] = true;
         }
       } else if (lastPollutantFlags.current[key]) {
-        logAlert({ type: key.toUpperCase(), level: 'Moderado', value, message: `${key.toUpperCase()} volvió a niveles aceptables`, cls: 'mod' });
         lastPollutantFlags.current[key] = false;
       }
     });
@@ -866,6 +887,7 @@ function App() {
   return (
     <ReactRouterDOM.HashRouter>
       <ThemeProvider defaultTheme="light">
+        <Toaster position="top-right" />
         <Layout>
           <ReactRouterDOM.Routes>
             <ReactRouterDOM.Route path="/" element={<DashboardPage />} />
