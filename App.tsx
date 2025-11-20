@@ -318,35 +318,39 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     console.log("DashboardPage useEffect triggered.");
     if (!latestReadings) {
-        console.log("No latestReadings yet.");
+        console.log("No latestReadings yet, skipping notification checks.");
         return;
     }
-    console.log("Latest readings received:", latestReadings);
+    console.log("Latest readings received for notification check:", latestReadings);
 
     const currentAqi = getAqiLevel(latestReadings.aqi);
-    console.log(`Current AQI: ${latestReadings.aqi} (${currentAqi.text})`);
-    console.log(`Last recorded AQI Level: ${lastAqiLevel.current}`);
+    console.log(`Current AQI: ${latestReadings.aqi} (${currentAqi.text}). Last recorded AQI Level: ${lastAqiLevel.current}`);
 
     if (lastAqiLevel.current && lastAqiLevel.current !== currentAqi.text) {
       const prevIdx = AQI_LEVELS.indexOf(lastAqiLevel.current);
       const currIdx = AQI_LEVELS.indexOf(currentAqi.text);
+      console.log(`AQI level changed from ${lastAqiLevel.current} (index ${prevIdx}) to ${currentAqi.text} (index ${currIdx}).`);
       if (currIdx > prevIdx) { // Only notify when level gets worse
         const message = `La calidad del aire ha cambiado a: ${currentAqi.text}`;
         logAlert({ type: 'AQI', level: currentAqi.text, value: latestReadings.aqi, message, cls: currentAqi.cls });
         triggerToast(message, currentAqi.cls as any);
-        console.log(`AQI Toast Triggered: ${message}`);
+        console.log(`AQI Toast Triggered (worsened): ${message}`);
       } else if (currIdx < prevIdx) { // Optionally notify when level gets better
           const message = `La calidad del aire ha mejorado a: ${currentAqi.text}`;
           // logAlert({ type: 'AQI', level: currentAqi.text, value: latestReadings.aqi, message, cls: currentAqi.cls });
           // triggerToast(message, currentAqi.cls as any);
           console.log(`AQI improved, no toast (optional trigger): ${message}`);
       }
+    } else if (!lastAqiLevel.current) {
+        console.log("First AQI reading, not triggering toast yet.");
+    } else {
+        console.log("AQI level unchanged.");
     }
     lastAqiLevel.current = currentAqi.text;
 
     Object.entries(POLLUTANT_THRESH).forEach(([key, thresholds]) => {
       const value = latestReadings[key as keyof SensorData] as number;
-      console.log(`Checking pollutant ${key}: Value = ${value}, Warn = ${thresholds.warn}, Bad = ${thresholds.bad}`);
+      console.log(`Checking pollutant ${key}: Value = ${value.toFixed(2)}, Warn = ${thresholds.warn}, Bad = ${thresholds.bad}. Current flag: ${lastPollutantFlags.current[key]}`);
       
       if (value >= thresholds.warn) {
         if (!lastPollutantFlags.current[key]) {
@@ -356,21 +360,21 @@ const DashboardPage: React.FC = () => {
           logAlert({ type: key.toUpperCase(), level, value, message, cls: level });
           triggerToast(message, level);
           lastPollutantFlags.current[key] = true;
-          console.log(`Pollutant Toast Triggered for ${key}: ${message}`);
+          console.log(`Pollutant Toast Triggered for ${key} (entered alert state): ${message}`);
         } else {
-            console.log(`Pollutant ${key} already in alert state.`);
+            console.log(`Pollutant ${key} already in alert state, no new toast.`);
         }
       } else if (lastPollutantFlags.current[key]) {
-        // Optional: Notify when levels return to normal
+        // Only notify when levels return to normal if they were previously elevated
         const level = 'good'; // Assuming it returned to a good state
         const unit = key === 'pm25' ? 'µg/m³' : 'ppm';
         const message = `${key.toUpperCase()} ha vuelto a niveles seguros (${value.toFixed(2)} ${unit})`;
         logAlert({ type: key.toUpperCase(), level, value, message, cls: level });
         triggerToast(message, level);
         lastPollutantFlags.current[key] = false;
-        console.log(`Pollutant Toast Triggered (return to normal) for ${key}: ${message}`);
+        console.log(`Pollutant Toast Triggered for ${key} (returned to normal): ${message}`);
       } else {
-          console.log(`Pollutant ${key} is within normal range and not in alert state.`);
+          console.log(`Pollutant ${key} is within normal range and not in an active alert state.`);
       }
     });
   }, [latestReadings, logAlert]);
@@ -385,7 +389,7 @@ const DashboardPage: React.FC = () => {
     <div className="grid grid-cols-12 gap-4">
       <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 flex flex-col justify-between col-span-12 lg:col-span-4 dark:bg-slate-800 dark:border-slate-700">
         <div>
-          <button onClick={() => triggerToast("Test notification", "good")} className="px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold text-sm hover:bg-blue-600 transition">Test Toast</button>
+
             <div className="text-6xl font-extrabold bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text">{latestReadings.aqi}</div>
         </div>
         <div className={`text-sm font-bold px-3 py-1 rounded-full self-start ${aqiInfo.className}`}>{aqiInfo.text}</div>
@@ -893,9 +897,16 @@ function App() {
 
   useEffect(() => {
     if ('Notification' in window) {
+      console.log('Notification API available.');
+      console.log('Current Notification permission:', Notification.permission);
       if (Notification.permission === 'default') {
+        console.log('Notification permission is default, showing banner.');
         setShowNotificationBanner(true);
+      } else {
+        console.log('Notification permission is not default, banner will not show.');
       }
+    } else {
+      console.log('Notification API not supported in this browser.');
     }
   }, []);
 
