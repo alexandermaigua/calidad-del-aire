@@ -389,7 +389,7 @@ const DashboardPage: React.FC = () => {
     <div className="grid grid-cols-12 gap-4">
       <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 flex flex-col justify-between col-span-12 lg:col-span-4 dark:bg-slate-800 dark:border-slate-700">
         <div>
-
+            <h3 className="font-bold text-slate-800 dark:text-white">Índice AQI (Calculado)</h3>
             <div className="text-6xl font-extrabold bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text">{latestReadings.aqi}</div>
         </div>
         <div className={`text-sm font-bold px-3 py-1 rounded-full self-start ${aqiInfo.className}`}>{aqiInfo.text}</div>
