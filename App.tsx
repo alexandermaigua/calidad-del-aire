@@ -316,22 +316,38 @@ const DashboardPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!latestReadings) return;
-    
+    console.log("DashboardPage useEffect triggered.");
+    if (!latestReadings) {
+        console.log("No latestReadings yet.");
+        return;
+    }
+    console.log("Latest readings received:", latestReadings);
+
     const currentAqi = getAqiLevel(latestReadings.aqi);
+    console.log(`Current AQI: ${latestReadings.aqi} (${currentAqi.text})`);
+    console.log(`Last recorded AQI Level: ${lastAqiLevel.current}`);
+
     if (lastAqiLevel.current && lastAqiLevel.current !== currentAqi.text) {
       const prevIdx = AQI_LEVELS.indexOf(lastAqiLevel.current);
       const currIdx = AQI_LEVELS.indexOf(currentAqi.text);
-      if (currIdx > prevIdx) {
+      if (currIdx > prevIdx) { // Only notify when level gets worse
         const message = `La calidad del aire ha cambiado a: ${currentAqi.text}`;
         logAlert({ type: 'AQI', level: currentAqi.text, value: latestReadings.aqi, message, cls: currentAqi.cls });
         triggerToast(message, currentAqi.cls as any);
+        console.log(`AQI Toast Triggered: ${message}`);
+      } else if (currIdx < prevIdx) { // Optionally notify when level gets better
+          const message = `La calidad del aire ha mejorado a: ${currentAqi.text}`;
+          // logAlert({ type: 'AQI', level: currentAqi.text, value: latestReadings.aqi, message, cls: currentAqi.cls });
+          // triggerToast(message, currentAqi.cls as any);
+          console.log(`AQI improved, no toast (optional trigger): ${message}`);
       }
     }
     lastAqiLevel.current = currentAqi.text;
 
     Object.entries(POLLUTANT_THRESH).forEach(([key, thresholds]) => {
       const value = latestReadings[key as keyof SensorData] as number;
+      console.log(`Checking pollutant ${key}: Value = ${value}, Warn = ${thresholds.warn}, Bad = ${thresholds.bad}`);
+      
       if (value >= thresholds.warn) {
         if (!lastPollutantFlags.current[key]) {
           const level = value >= thresholds.bad ? 'bad' : 'warn';
@@ -340,9 +356,21 @@ const DashboardPage: React.FC = () => {
           logAlert({ type: key.toUpperCase(), level, value, message, cls: level });
           triggerToast(message, level);
           lastPollutantFlags.current[key] = true;
+          console.log(`Pollutant Toast Triggered for ${key}: ${message}`);
+        } else {
+            console.log(`Pollutant ${key} already in alert state.`);
         }
       } else if (lastPollutantFlags.current[key]) {
+        // Optional: Notify when levels return to normal
+        const level = 'good'; // Assuming it returned to a good state
+        const unit = key === 'pm25' ? 'µg/m³' : 'ppm';
+        const message = `${key.toUpperCase()} ha vuelto a niveles seguros (${value.toFixed(2)} ${unit})`;
+        logAlert({ type: key.toUpperCase(), level, value, message, cls: level });
+        triggerToast(message, level);
         lastPollutantFlags.current[key] = false;
+        console.log(`Pollutant Toast Triggered (return to normal) for ${key}: ${message}`);
+      } else {
+          console.log(`Pollutant ${key} is within normal range and not in alert state.`);
       }
     });
   }, [latestReadings, logAlert]);
